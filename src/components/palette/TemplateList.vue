@@ -63,6 +63,8 @@ function formatDate(iso: string): string {
 
 <style scoped lang="scss">
 @use '@/styles/variables' as *;
+@use '@/styles/buttons' as *;
+@use '@/styles/panels' as *;
 
 .template-list {
   display: flex;
@@ -70,12 +72,7 @@ function formatDate(iso: string): string {
   gap: 8px;
 
   &__heading {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: $color-text-secondary;
-    padding: 0 4px;
+    @include section-heading;
   }
 
   &__empty {
@@ -139,23 +136,10 @@ function formatDate(iso: string): string {
   }
 
   &__btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
-    color: $color-text-secondary;
-    transition: all 0.15s ease;
-
-    &:hover {
-      background: $color-bg;
-      color: $color-text;
-    }
+    @extend .btn-icon--sm;
 
     &--delete:hover {
-      background: #fef2f2;
-      color: $color-danger;
+      @include hover-danger;
     }
   }
 }

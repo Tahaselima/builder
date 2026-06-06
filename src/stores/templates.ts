@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useEditorStore } from './editor'
 import { fetchTemplates, saveTemplate, deleteTemplate } from '@/utils/api'
 import { generateId } from '@/utils/id'
+import { downloadJson } from '@/utils/download'
 import type { Template } from '@/types'
 
 export const useTemplatesStore = defineStore('templates', () => {
@@ -66,15 +67,7 @@ export const useTemplatesStore = defineStore('templates', () => {
   function exportAsJson(id: string): void {
     const template = templates.value.find((t) => t.id === id)
     if (!template) return
-
-    const json = JSON.stringify(template, null, 2)
-    const blob = new Blob([json], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${template.name.replace(/\s+/g, '_')}.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadJson(template, `${template.name}.json`)
   }
 
   function exportCurrentAsJson(): void {
@@ -88,15 +81,7 @@ export const useTemplatesStore = defineStore('templates', () => {
       createdAt: now,
       updatedAt: now
     }
-
-    const json = JSON.stringify(template, null, 2)
-    const blob = new Blob([json], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'template.json'
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadJson(template, 'template.json')
   }
 
   return {

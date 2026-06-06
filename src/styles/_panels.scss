@@ -1,0 +1,29 @@
+@use './variables' as *;
+
+@mixin panel-surface {
+  background: $color-surface;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+@mixin panel-right {
+  @include panel-surface;
+  border-right: 1px solid $color-border;
+  overflow-y: auto;
+}
+
+@mixin panel-left {
+  @include panel-surface;
+  border-left: 1px solid $color-border;
+  overflow-y: auto;
+}
+
+@mixin section-heading {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $color-text-secondary;
+  padding: 0 4px;
+}

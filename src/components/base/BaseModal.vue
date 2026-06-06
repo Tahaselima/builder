@@ -41,7 +41,7 @@ defineEmits<{
 .base-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: $color-overlay;
   display: flex;
   justify-content: flex-end;
   padding: 68px 24px 0 0;
@@ -58,7 +58,7 @@ defineEmits<{
   background: $color-surface;
   border-radius: 12px;
   height: max-content;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 32px $color-shadow;
   overflow: hidden;
 
   &__header {
@@ -92,10 +92,10 @@ defineEmits<{
   }
 
   &__body {
-    padding: 16px 20px;
+    padding: $padding-panel 20px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: $gap-form;
   }
 }
 </style>

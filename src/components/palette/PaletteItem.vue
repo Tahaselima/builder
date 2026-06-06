@@ -45,7 +45,7 @@ function onDragStart(event: DragEvent, type: ElementType): void {
 
   &:hover {
     border-color: $color-primary;
-    background: #eef2ff;
+    background: $color-primary-light;
   }
 
   &:active {

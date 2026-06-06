@@ -2,17 +2,10 @@
 import { useEditorStore } from '@/stores/editor'
 import BaseIcon from '@/components/icon/BaseIcon.vue'
 import PropertiesEditor from './PropertiesEditor.vue'
+import { ELEMENT_TYPE_LABELS } from '@/utils/elementDefaults'
 import type { CanvasElement } from '@/types'
 
 const editor = useEditorStore()
-
-const typeLabels: Record<string, string> = {
-  heading: 'Heading',
-  text: 'Text',
-  button: 'Button',
-  image: 'Image',
-  divider: 'Divider'
-}
 
 function onUpdate(payload: Partial<CanvasElement>): void {
   if (!editor.selectedElement) return
@@ -22,7 +15,7 @@ function onUpdate(payload: Partial<CanvasElement>): void {
     const thickness = (payload as Record<string, unknown>).thickness as number
     payload.size = {
       width: editor.selectedElement.size.width,
-      height: thickness + 8 // padding for selection outline
+      height: thickness + 8
     }
   }
 
@@ -35,7 +28,7 @@ function onUpdate(payload: Partial<CanvasElement>): void {
     <template v-if="editor.selectedElement">
       <div class="properties-panel__header">
         <h2 class="properties-panel__title">
-          {{ typeLabels[editor.selectedElement.type] || editor.selectedElement.type }} Properties
+          {{ ELEMENT_TYPE_LABELS[editor.selectedElement.type] || editor.selectedElement.type }} Properties
         </h2>
         <button
           class="properties-panel__delete"
@@ -47,7 +40,6 @@ function onUpdate(payload: Partial<CanvasElement>): void {
       </div>
 
       <div class="properties-panel__body">
-        <!-- Z-Index Controls -->
         <div class="properties-panel__layer">
           <span class="properties-panel__layer-label">Layer</span>
           <div class="properties-panel__layer-actions">
@@ -72,7 +64,6 @@ function onUpdate(payload: Partial<CanvasElement>): void {
 
         <div class="properties-panel__divider" />
 
-        <!-- Dynamic Property Fields -->
         <PropertiesEditor
           :element="editor.selectedElement"
           @update="onUpdate"
@@ -90,21 +81,17 @@ function onUpdate(payload: Partial<CanvasElement>): void {
 <style scoped lang="scss">
 @use '@/styles/variables' as *;
 @use '@/styles/buttons' as *;
+@use '@/styles/panels' as *;
 
 .properties-panel {
+  @include panel-left;
   width: $panel-width;
-  background: $color-surface;
-  border-left: 1px solid $color-border;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  overflow-y: auto;
 
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 16px 12px;
+    padding: $padding-panel $padding-panel 12px;
     border-bottom: 1px solid $color-border;
   }
 
@@ -120,10 +107,10 @@ function onUpdate(payload: Partial<CanvasElement>): void {
   }
 
   &__body {
-    padding: 16px;
+    padding: $padding-panel;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: $gap-form;
   }
 
   &__layer {
@@ -133,11 +120,7 @@ function onUpdate(payload: Partial<CanvasElement>): void {
   }
 
   &__layer-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: $color-text-secondary;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
+    @include section-heading;
   }
 
   &__layer-actions {
@@ -170,25 +153,6 @@ function onUpdate(payload: Partial<CanvasElement>): void {
     svg {
       opacity: 0.3;
     }
-  }
-}
-
-.layer-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 500;
-  color: $color-text-secondary;
-  border: 1px solid $color-border;
-  transition: all 0.15s ease;
-
-  &:hover {
-    border-color: $color-primary;
-    color: $color-primary;
-    background: #eef2ff;
   }
 }
 </style>

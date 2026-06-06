@@ -71,28 +71,14 @@ function finishEditing(): void {
     @mousedown="isEditing ? undefined : onMouseDown($event)"
     @dblclick="onDoubleClick"
   >
-    <!-- Heading -->
+    <!-- Heading / Text (inline-editable) -->
     <div
-      v-if="element.type === 'heading'"
+      v-if="element.type === 'heading' || element.type === 'text'"
       ref="editRef"
-      class="canvas-element__content canvas-element__heading"
-      :contenteditable="isEditing"
-      :style="{
-        fontSize: element.fontSize + 'px',
-        color: element.color,
-        textAlign: element.align
-      }"
-      @blur="finishEditing"
-      @keydown.enter.prevent="finishEditing"
-    >
-      {{ element.content }}
-    </div>
-
-    <!-- Text -->
-    <div
-      v-else-if="element.type === 'text'"
-      ref="editRef"
-      class="canvas-element__content canvas-element__text"
+      class="canvas-element__content"
+      :class="[
+        element.type === 'heading' ? 'canvas-element__heading' : 'canvas-element__text'
+      ]"
       :contenteditable="isEditing"
       :style="{
         fontSize: element.fontSize + 'px',
@@ -275,7 +261,7 @@ function finishEditing(): void {
       opacity: 1;
       color: $color-danger;
       transform: scale(1.2);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 1px 4px $color-shadow;
     }
   }
 }
