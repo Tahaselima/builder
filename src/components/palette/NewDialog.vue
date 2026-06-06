@@ -4,6 +4,8 @@ import BaseModal from '@/components/base/BaseModal.vue'
 import BaseIcon from '@/components/icon/BaseIcon.vue'
 import { useEditorStore } from '@/stores/editor'
 import { useTemplatesStore } from '@/stores/templates'
+import { generateTemplate, hasApiKey, getApiKey } from '@/utils/ai'
+import AiKeyModal from '@/components/header/AiKeyModal.vue'
 
 const editor = useEditorStore()
 const templates = useTemplatesStore()
@@ -14,6 +16,11 @@ const emit = defineEmits<{
 
 const importInput = ref<HTMLInputElement | null>(null)
 const importError = ref<string | null>(null)
+const aiPrompt = ref('')
+const aiError = ref<string | null>(null)
+const aiLoading = ref(false)
+const showAiKeyModal = ref(false)
+const showAiForm = ref(false)
 
 function onBlank(): void {
   editor.clearCanvas()
@@ -41,47 +48,98 @@ async function onImport(): Promise<void> {
   if (importInput.value) importInput.value.value = ''
 }
 
-function onAI(): void {
-  // TODO: AI-powered template generation
-  alert('AI template generation coming soon!')
+function onAIClick(): void {
+  if (!hasApiKey()) {
+    showAiKeyModal.value = true
+    return
+  }
+  showAiForm.value = true
+}
+
+async function onAIGenerate(): Promise<void> {
+  if (!aiPrompt.value.trim()) return
+  aiError.value = null
+  aiLoading.value = true
+
+  try {
+    const template = await generateTemplate({
+      prompt: aiPrompt.value.trim(),
+      apiKey: getApiKey()
+    })
+    editor.loadElements([...template.elements], { ...template.canvas })
+    emit('close')
+  } catch (e) {
+    aiError.value = e instanceof Error ? e.message : 'AI generation failed'
+  } finally {
+    aiLoading.value = false
+  }
 }
 </script>
 
 <template>
   <BaseModal title="New Template" width="340px" position="center" @close="$emit('close')">
-    <div class="new-options">
-      <button class="new-option" @click="onBlank">
-        <div class="new-option__icon">
-          <BaseIcon name="button" :size="24" />
-        </div>
-        <div class="new-option__info">
-          <span class="new-option__title">Blank Canvas</span>
-          <span class="new-option__desc">Start from scratch</span>
-        </div>
-      </button>
+    <!-- Default options view -->
+    <template v-if="!showAiForm">
+      <div class="new-options">
+        <button class="new-option" @click="onBlank">
+          <div class="new-option__icon">
+            <BaseIcon name="button" :size="24" />
+          </div>
+          <div class="new-option__info">
+            <span class="new-option__title">Blank Canvas</span>
+            <span class="new-option__desc">Start from scratch</span>
+          </div>
+        </button>
 
-      <button class="new-option" @click="triggerImport">
-        <div class="new-option__icon">
-          <BaseIcon name="upload" :size="24" />
-        </div>
-        <div class="new-option__info">
-          <span class="new-option__title">Import JSON</span>
-          <span class="new-option__desc">Load from a file</span>
-        </div>
-      </button>
+        <button class="new-option" @click="triggerImport">
+          <div class="new-option__icon">
+            <BaseIcon name="upload" :size="24" />
+          </div>
+          <div class="new-option__info">
+            <span class="new-option__title">Import JSON</span>
+            <span class="new-option__desc">Load from a file</span>
+          </div>
+        </button>
 
-      <button class="new-option" @click="onAI">
-        <div class="new-option__icon new-option__icon--ai">
-          <BaseIcon name="settings" :size="24" />
-        </div>
-        <div class="new-option__info">
-          <span class="new-option__title">AI Generate</span>
-          <span class="new-option__desc">Coming soon</span>
-        </div>
-      </button>
-    </div>
+        <button class="new-option" @click="onAIClick">
+          <div class="new-option__icon new-option__icon--ai">
+            <BaseIcon name="settings" :size="24" />
+          </div>
+          <div class="new-option__info">
+            <span class="new-option__title">AI Generate</span>
+            <span class="new-option__desc">Describe your template</span>
+          </div>
+        </button>
+      </div>
 
-    <p v-if="importError" class="new-options__error">{{ importError }}</p>
+      <p v-if="importError" class="new-options__error">{{ importError }}</p>
+    </template>
+
+    <!-- AI prompt form -->
+    <template v-else>
+      <div class="ai-form">
+        <textarea
+          v-model="aiPrompt"
+          class="form-input form-input--textarea"
+          placeholder="Describe the template you want... e.g. 'A pricing card with 3 tiers'"
+          rows="3"
+          autofocus
+          @keydown.ctrl.enter="onAIGenerate"
+          @keydown.meta.enter="onAIGenerate"
+        />
+        <div class="ai-form__actions">
+          <button class="btn-secondary" @click="showAiForm = false">Back</button>
+          <button
+            class="btn-primary"
+            :disabled="!aiPrompt.trim() || aiLoading"
+            @click="onAIGenerate"
+          >
+            {{ aiLoading ? 'Generating...' : 'Generate' }}
+          </button>
+        </div>
+        <p v-if="aiError" class="new-options__error">{{ aiError }}</p>
+      </div>
+    </template>
 
     <input
       ref="importInput"
@@ -91,10 +149,16 @@ function onAI(): void {
       @change="onImport"
     />
   </BaseModal>
+
+  <AiKeyModal
+    v-if="showAiKeyModal"
+    @close="showAiKeyModal = false"
+  />
 </template>
 
 <style scoped lang="scss">
 @use '@/styles/variables' as *;
+@use '@/styles/forms' as *;
 
 .new-options {
   display: flex;
@@ -157,6 +221,18 @@ function onAI(): void {
   &__desc {
     font-size: 12px;
     color: $color-text-secondary;
+  }
+}
+
+.ai-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
   }
 }
 </style>
