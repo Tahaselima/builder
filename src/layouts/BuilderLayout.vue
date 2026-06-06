@@ -3,6 +3,9 @@ import AppHeader from '@/components/header/AppHeader.vue'
 import ElementPalette from '@/components/palette/ElementPalette.vue'
 import CanvasArea from '@/components/canvas/CanvasArea.vue'
 import PropertiesPanel from '@/components/properties/PropertiesPanel.vue'
+import { useKeyboard } from '@/composables/useKeyboard'
+
+useKeyboard()
 </script>
 
 <template>
