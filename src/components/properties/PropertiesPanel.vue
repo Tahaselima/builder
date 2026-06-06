@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { useEditorStore } from '@/stores/editor'
 import BaseIcon from '@/components/icon/BaseIcon.vue'
+import HeadingProperties from './HeadingProperties.vue'
+import TextProperties from './TextProperties.vue'
+import ButtonProperties from './ButtonProperties.vue'
+import ImageProperties from './ImageProperties.vue'
+import DividerProperties from './DividerProperties.vue'
+import type { CanvasElement } from '@/types'
+import type { Component } from 'vue'
 
 const editor = useEditorStore()
 
@@ -10,6 +17,19 @@ const typeLabels: Record<string, string> = {
   button: 'Button',
   image: 'Image',
   divider: 'Divider'
+}
+
+const propertyComponent: Record<string, Component> = {
+  heading: HeadingProperties,
+  text: TextProperties,
+  button: ButtonProperties,
+  image: ImageProperties,
+  divider: DividerProperties
+}
+
+function onUpdate(payload: Partial<CanvasElement>): void {
+  if (!editor.selectedElement) return
+  editor.updateElement(editor.selectedElement.id, payload)
 }
 </script>
 
@@ -30,7 +50,11 @@ const typeLabels: Record<string, string> = {
       </div>
 
       <div class="properties-panel__body">
-        <p class="properties-panel__hint">Properties will be editable here.</p>
+        <component
+          :is="propertyComponent[editor.selectedElement.type]"
+          :element="editor.selectedElement"
+          @update="onUpdate"
+        />
       </div>
     </template>
 
@@ -85,11 +109,6 @@ const typeLabels: Record<string, string> = {
 
   &__body {
     padding: 16px;
-  }
-
-  &__hint {
-    font-size: 13px;
-    color: $color-text-secondary;
   }
 
   &__empty {
