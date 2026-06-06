@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { CanvasElement, Size } from '@/types'
+import type { CanvasElement, ElementUpdate, Size } from '@/types'
 import { propertyConfigs } from '@/utils/propertyConfig'
 import type { PropertyFieldConfig } from '@/utils/propertyConfig'
 import { inputValue, inputNumber } from '@/utils/events'
@@ -12,7 +12,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  update: [payload: Partial<CanvasElement>]
+  update: [payload: ElementUpdate]
 }>()
 
 const fields = computed(() => propertyConfigs[props.element.type] ?? [])

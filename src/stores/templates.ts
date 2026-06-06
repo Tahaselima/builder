@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useEditorStore } from './editor'
+import { useEditorStore } from '@/stores/editor'
 import { fetchTemplates, saveTemplate, deleteTemplate } from '@/utils/api'
 import { generateId } from '@/utils/id'
 import { downloadJson } from '@/utils/download'

@@ -3,22 +3,12 @@ import { useEditorStore } from '@/stores/editor'
 import BaseIcon from '@/components/icon/BaseIcon.vue'
 import PropertiesEditor from './PropertiesEditor.vue'
 import { ELEMENT_TYPE_LABELS } from '@/utils/elementDefaults'
-import type { CanvasElement } from '@/types'
+import type { ElementUpdate } from '@/types'
 
 const editor = useEditorStore()
 
-function onUpdate(payload: Partial<CanvasElement>): void {
+function onUpdate(payload: ElementUpdate): void {
   if (!editor.selectedElement) return
-
-  // Divider: thickness değişirse size.height da güncelle
-  if ('thickness' in payload && editor.selectedElement.type === 'divider') {
-    const thickness = (payload as Record<string, unknown>).thickness as number
-    payload.size = {
-      width: editor.selectedElement.size.width,
-      height: thickness + 8
-    }
-  }
-
   editor.updateElement(editor.selectedElement.id, payload)
 }
 </script>

@@ -255,7 +255,7 @@ function finishEditing(): void {
     z-index: 11;
     cursor: pointer;
     opacity: 0.5;
-    transition: all 0.15s ease;
+    transition: $transition-default;
 
     &:hover {
       opacity: 1;

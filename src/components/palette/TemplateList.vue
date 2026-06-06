@@ -95,7 +95,7 @@ function formatDate(iso: string): string {
   padding: 8px 10px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: $transition-default;
   border: 1px solid transparent;
 
   &:hover {

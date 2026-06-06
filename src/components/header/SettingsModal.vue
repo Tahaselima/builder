@@ -4,6 +4,7 @@ import { useEditorStore } from '@/stores/editor'
 import BaseModal from '@/components/base/BaseModal.vue'
 import PropertyField from '@/components/base/PropertyField.vue'
 import { inputValue, inputNumber } from '@/utils/events'
+import { DEFAULT_CANVAS } from '@/utils/elementDefaults'
 
 const editor = useEditorStore()
 
@@ -13,9 +14,14 @@ defineEmits<{
 
 const settings = reactive({
   backgroundColor: editor.canvas.backgroundColor,
-  borderRadius: editor.canvas.borderRadius ?? 8,
-  boxShadow: editor.canvas.boxShadow ?? 4,
-  boxShadowOpacity: editor.canvas.boxShadowOpacity ?? 0.08
+  borderRadius: editor.canvas.borderRadius ?? DEFAULT_CANVAS.borderRadius,
+  boxShadow: editor.canvas.boxShadow ?? DEFAULT_CANVAS.boxShadow,
+  boxShadowOpacity: editor.canvas.boxShadowOpacity ?? DEFAULT_CANVAS.boxShadowOpacity
+} as {
+  backgroundColor: string
+  borderRadius: number
+  boxShadow: number
+  boxShadowOpacity: number
 })
 
 function onInput(): void {

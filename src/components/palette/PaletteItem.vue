@@ -40,7 +40,7 @@ function onDragStart(event: DragEvent, type: ElementType): void {
   background: $color-bg;
   border: 1px solid $color-border;
   cursor: grab;
-  transition: all 0.15s ease;
+  transition: $transition-default;
   user-select: none;
 
   &:hover {

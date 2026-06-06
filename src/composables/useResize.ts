@@ -1,5 +1,7 @@
-import { ref, onUnmounted } from 'vue'
+import { ref } from 'vue'
 import { useEditorStore } from '@/stores/editor'
+import { useMouseDrag } from '@/composables/useMouseDrag'
+import { clamp } from '@/utils/canvas'
 import type { Size, Position } from '@/types'
 
 type HandleCorner = 'tl' | 'tr' | 'bl' | 'br'
@@ -8,36 +10,18 @@ const MIN_SIZE = 20
 
 export function useResize(elementId: () => string) {
   const editor = useEditorStore()
+  const drag = useMouseDrag()
 
-  const isResizing = ref(false)
   const activeCorner = ref<HandleCorner | null>(null)
   const startMouse = ref({ x: 0, y: 0 })
   const startSize = ref({ width: 0, height: 0 })
   const startPosition = ref({ x: 0, y: 0 })
 
-  function onMouseDown(event: MouseEvent, corner: HandleCorner): void {
-    event.stopPropagation()
-    event.preventDefault()
-
-    const id = elementId()
-    const el = editor.elements.find((e) => e.id === id)
-    if (!el) return
-
-    isResizing.value = true
-    activeCorner.value = corner
-    startMouse.value = { x: event.clientX, y: event.clientY }
-    startSize.value = { ...el.size }
-    startPosition.value = { ...el.position }
-
-    document.addEventListener('mousemove', onMouseMove)
-    document.addEventListener('mouseup', onMouseUp)
-  }
-
   function onMouseMove(event: MouseEvent): void {
-    if (!isResizing.value || !activeCorner.value) return
+    if (!activeCorner.value) return
 
     const id = elementId()
-    const el = editor.elements.find((e) => e.id === id)
+    const el = editor.getElementById(id)
     if (!el) return
 
     const dx = event.clientX - startMouse.value.x
@@ -73,16 +57,12 @@ export function useResize(elementId: () => string) {
     }
 
     // Clamp within canvas bounds
-    newX = Math.max(0, newX)
-    newY = Math.max(0, newY)
-    if (newX + newWidth > editor.canvas.width) {
-      newWidth = editor.canvas.width - newX
-    }
-    if (newY + newHeight > editor.canvas.height) {
-      newHeight = editor.canvas.height - newY
-    }
+    newX = clamp(newX, 0, editor.canvas.width - MIN_SIZE)
+    newY = clamp(newY, 0, editor.canvas.height - MIN_SIZE)
+    newWidth = clamp(newWidth, MIN_SIZE, editor.canvas.width - newX)
+    newHeight = clamp(newHeight, MIN_SIZE, editor.canvas.height - newY)
 
-    const newSize: Size = { width: Math.max(MIN_SIZE, newWidth), height: Math.max(MIN_SIZE, newHeight) }
+    const newSize: Size = { width: newWidth, height: newHeight }
     const newPos: Position = { x: newX, y: newY }
 
     editor.moveElement(id, newPos)
@@ -90,22 +70,29 @@ export function useResize(elementId: () => string) {
   }
 
   function onMouseUp(): void {
-    if (!isResizing.value) return
-    isResizing.value = false
     activeCorner.value = null
     editor.commitMoveResize()
-
-    document.removeEventListener('mousemove', onMouseMove)
-    document.removeEventListener('mouseup', onMouseUp)
+    drag.detach()
   }
 
-  onUnmounted(() => {
-    document.removeEventListener('mousemove', onMouseMove)
-    document.removeEventListener('mouseup', onMouseUp)
-  })
+  function onMouseDown(event: MouseEvent, corner: HandleCorner): void {
+    event.stopPropagation()
+    event.preventDefault()
+
+    const id = elementId()
+    const el = editor.getElementById(id)
+    if (!el) return
+
+    activeCorner.value = corner
+    startMouse.value = { x: event.clientX, y: event.clientY }
+    startSize.value = { ...el.size }
+    startPosition.value = { ...el.position }
+
+    drag.attach(onMouseMove, onMouseUp)
+  }
 
   return {
-    isResizing,
+    isResizing: drag.isActive,
     onMouseDown
   }
 }

@@ -1,94 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { generateId } from '@/utils/id'
 import type {
   CanvasElement,
   CanvasConfig,
+  ElementUpdate,
   ElementType,
   Position,
-  Size,
-  HeadingElement,
-  TextElement,
-  ButtonElement,
-  ImageElement,
-  DividerElement
+  Size
 } from '@/types'
-
-const DEFAULT_CANVAS: CanvasConfig = {
-  width: 400,
-  height: 500,
-  backgroundColor: '#ffffff',
-  borderRadius: 8,
-  boxShadow: 4,
-  boxShadowOpacity: 0.08
-}
-
-function createElementDefaults(type: ElementType, canvas: CanvasConfig): CanvasElement {
-  const id = generateId()
-  const cx = Math.floor(canvas.width / 2 - 60)
-  const cy = Math.floor(canvas.height / 2 - 25)
-
-  switch (type) {
-    case 'heading':
-      return {
-        id,
-        type: 'heading',
-        position: { x: cx, y: cy },
-        size: { width: 240, height: 40 },
-        zIndex: 0,
-        content: 'Heading',
-        fontSize: 24,
-        color: '#1f2937',
-        align: 'left'
-      } satisfies HeadingElement
-    case 'text':
-      return {
-        id,
-        type: 'text',
-        position: { x: cx, y: cy },
-        size: { width: 260, height: 60 },
-        zIndex: 0,
-        content: 'Text block',
-        fontSize: 14,
-        color: '#374151',
-        align: 'left'
-      } satisfies TextElement
-    case 'button':
-      return {
-        id,
-        type: 'button',
-        position: { x: cx, y: cy },
-        size: { width: 140, height: 44 },
-        zIndex: 0,
-        content: 'Click Me',
-        fontSize: 14,
-        color: '#ffffff',
-        backgroundColor: '#4f46e5',
-        borderRadius: 8,
-        align: 'center'
-      } satisfies ButtonElement
-    case 'image':
-      return {
-        id,
-        type: 'image',
-        position: { x: cx, y: cy },
-        size: { width: 200, height: 150 },
-        zIndex: 0,
-        src: '',
-        alt: 'Image'
-      } satisfies ImageElement
-    case 'divider':
-      return {
-        id,
-        type: 'divider',
-        position: { x: cx, y: cy },
-        size: { width: 260, height: 4 },
-        zIndex: 0,
-        color: '#d1d5db',
-        thickness: 2
-      } satisfies DividerElement
-  }
-}
+import { DEFAULT_CANVAS, createElementDefaults, DIVIDER_PADDING } from '@/utils/elementDefaults'
 
 export const useEditorStore = defineStore('editor', () => {
   // --- State ---
@@ -102,10 +22,19 @@ export const useEditorStore = defineStore('editor', () => {
   const historyIndex = ref(0)
   const maxHistory = 50
 
+  // --- Element Lookup Helpers ---
+  function getElementIndex(id: string): number {
+    return elements.value.findIndex((el) => el.id === id)
+  }
+
+  function getElementById(id: string): CanvasElement | undefined {
+    return elements.value.find((el) => el.id === id)
+  }
+
   // --- Getters ---
   const selectedElement = computed<CanvasElement | null>(() => {
     if (!selectedElementId.value) return null
-    return elements.value.find((el) => el.id === selectedElementId.value) ?? null
+    return getElementById(selectedElementId.value) ?? null
   })
 
   const sortedElements = computed<CanvasElement[]>(() => {
@@ -127,17 +56,27 @@ export const useEditorStore = defineStore('editor', () => {
     historyIndex.value = history.value.length - 1
   }
 
+  function restoreFromHistory(): void {
+    try {
+      elements.value = JSON.parse(history.value[historyIndex.value])
+    } catch (e) {
+      console.error('Failed to restore history snapshot', e)
+      // Reset to last known good state
+      history.value = history.value.slice(0, historyIndex.value)
+    }
+  }
+
   function undo(): void {
     if (!canUndo.value) return
     historyIndex.value--
-    elements.value = JSON.parse(history.value[historyIndex.value])
+    restoreFromHistory()
     selectedElementId.value = null
   }
 
   function redo(): void {
     if (!canRedo.value) return
     historyIndex.value++
-    elements.value = JSON.parse(history.value[historyIndex.value])
+    restoreFromHistory()
     selectedElementId.value = null
   }
 
@@ -161,21 +100,32 @@ export const useEditorStore = defineStore('editor', () => {
     pushHistory()
   }
 
-  function updateElement(id: string, updates: Partial<CanvasElement>): void {
-    const index = elements.value.findIndex((el) => el.id === id)
+  function updateElement(id: string, updates: ElementUpdate): void {
+    const index = getElementIndex(id)
     if (index === -1) return
-    elements.value[index] = { ...elements.value[index], ...updates } as CanvasElement
+
+    const updated = { ...elements.value[index], ...updates } as CanvasElement
+
+    // Divider: sync size.height when thickness changes
+    if ('thickness' in updates && updated.type === 'divider') {
+      updated.size = {
+        width: updated.size.width,
+        height: (updates as Record<string, unknown>).thickness as number + DIVIDER_PADDING
+      }
+    }
+
+    elements.value[index] = updated
     pushHistory()
   }
 
   function moveElement(id: string, position: Position): void {
-    const index = elements.value.findIndex((el) => el.id === id)
+    const index = getElementIndex(id)
     if (index === -1) return
     elements.value[index] = { ...elements.value[index], position: { ...position } }
   }
 
   function resizeElement(id: string, size: Size): void {
-    const index = elements.value.findIndex((el) => el.id === id)
+    const index = getElementIndex(id)
     if (index === -1) return
     elements.value[index] = { ...elements.value[index], size: { ...size } }
   }
@@ -189,14 +139,14 @@ export const useEditorStore = defineStore('editor', () => {
   }
 
   function bringToFront(id: string): void {
-    const index = elements.value.findIndex((el) => el.id === id)
+    const index = getElementIndex(id)
     if (index === -1) return
     elements.value[index].zIndex = nextZIndex.value++
     pushHistory()
   }
 
   function sendToBack(id: string): void {
-    const index = elements.value.findIndex((el) => el.id === id)
+    const index = getElementIndex(id)
     if (index === -1) return
     elements.value[index].zIndex = 0
     pushHistory()
@@ -231,6 +181,8 @@ export const useEditorStore = defineStore('editor', () => {
     sortedElements,
     canUndo,
     canRedo,
+    // Helpers
+    getElementById,
     // Actions
     addElement,
     removeElement,

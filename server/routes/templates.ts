@@ -4,12 +4,27 @@ import type { Template } from '../../src/types/index.js'
 
 export const templatesRouter = Router()
 
+// --- Runtime validation ---
+
+function isValidTemplate(body: unknown): body is Template {
+  if (!body || typeof body !== 'object') return false
+  const obj = body as Record<string, unknown>
+  if (typeof obj.id !== 'string' || typeof obj.name !== 'string') return false
+  if (!Array.isArray(obj.elements)) return false
+  if (!obj.canvas || typeof obj.canvas !== 'object') return false
+  const canvas = obj.canvas as Record<string, unknown>
+  if (typeof canvas.width !== 'number' || typeof canvas.height !== 'number') return false
+  if (typeof canvas.backgroundColor !== 'string') return false
+  return true
+}
+
 // GET /api/templates — List all templates
 templatesRouter.get('/templates', (_req: Request, res: Response) => {
   try {
     const templates = loadAll()
     res.json(templates)
   } catch (error) {
+    console.error(error)
     res.status(500).json({ success: false, error: 'Failed to load templates' })
   }
 })
@@ -17,13 +32,12 @@ templatesRouter.get('/templates', (_req: Request, res: Response) => {
 // POST /api/templates — Create or update template (upsert by id)
 templatesRouter.post('/templates', (req: Request, res: Response) => {
   try {
-    const template = req.body as Template
-
-    if (!template || !template.id || !template.name) {
-      res.status(400).json({ success: false, error: 'Template must have id and name' })
+    if (!isValidTemplate(req.body)) {
+      res.status(400).json({ success: false, error: 'Invalid template payload' })
       return
     }
 
+    const template = req.body
     const templates = loadAll()
     const existingIndex = templates.findIndex((t) => t.id === template.id)
 
@@ -38,6 +52,7 @@ templatesRouter.post('/templates', (req: Request, res: Response) => {
     saveAll(templates)
     res.json(template)
   } catch (error) {
+    console.error(error)
     res.status(500).json({ success: false, error: 'Failed to save template' })
   }
 })
@@ -57,6 +72,7 @@ templatesRouter.delete('/templates/:id', (req: Request, res: Response) => {
     saveAll(filtered)
     res.status(204).send()
   } catch (error) {
+    console.error(error)
     res.status(500).json({ success: false, error: 'Failed to delete template' })
   }
 })

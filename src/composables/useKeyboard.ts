@@ -1,5 +1,6 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useEditorStore } from '@/stores/editor'
+import { clampPosition } from '@/utils/canvas'
 
 const NUDGE = 1
 const NUDGE_FAST = 10
@@ -35,7 +36,7 @@ export function useKeyboard() {
     // Arrow keys — nudge selected element
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key) && selected) {
       event.preventDefault()
-      const el = editor.elements.find((e) => e.id === selected)
+      const el = editor.getElementById(selected)
       if (!el) return
 
       const step = event.shiftKey ? NUDGE_FAST : NUDGE
@@ -48,11 +49,9 @@ export function useKeyboard() {
         case 'ArrowRight': x += step; break
       }
 
-      // Clamp within canvas
-      x = Math.max(0, Math.min(x, editor.canvas.width - el.size.width))
-      y = Math.max(0, Math.min(y, editor.canvas.height - el.size.height))
+      const newPos = clampPosition({ x, y }, el.size, editor.canvas)
 
-      editor.moveElement(selected, { x, y })
+      editor.moveElement(selected, newPos)
       editor.commitMoveResize()
       return
     }

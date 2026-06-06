@@ -2,11 +2,26 @@
 import { ref } from 'vue'
 import { useEditorStore } from '@/stores/editor'
 import CanvasElement from '@/components/canvas/CanvasElement.vue'
-import { ELEMENT_DEFAULT_SIZE } from '@/utils/elementDefaults'
-import type { ElementType, Position } from '@/types'
+import { ELEMENT_DEFAULT_SIZE, DEFAULT_CANVAS } from '@/utils/elementDefaults'
+import { clampPosition } from '@/utils/canvas'
+import type { ElementType } from '@/types'
 
 const editor = useEditorStore()
 const canvasRef = ref<HTMLElement | null>(null)
+
+function canvasStyle() {
+  const c = editor.canvas
+  const shadow: number = c.boxShadow ?? DEFAULT_CANVAS.boxShadow!
+  const shadowOpacity: number = c.boxShadowOpacity ?? DEFAULT_CANVAS.boxShadowOpacity!
+  const radius: number = c.borderRadius ?? DEFAULT_CANVAS.borderRadius!
+  return {
+    width: c.width + 'px',
+    height: c.height + 'px',
+    backgroundColor: c.backgroundColor,
+    borderRadius: radius + 'px',
+    boxShadow: `0 ${shadow}px ${shadow * 6}px rgba(0, 0, 0, ${shadowOpacity})`
+  }
+}
 
 function onDragOver(event: DragEvent): void {
   event.preventDefault()
@@ -28,13 +43,8 @@ function onDrop(event: DragEvent): void {
   // Center element on cursor, then clamp within canvas bounds
   const rawX = event.clientX - rect.left - elSize.width / 2
   const rawY = event.clientY - rect.top - elSize.height / 2
-  const maxX = editor.canvas.width - elSize.width
-  const maxY = editor.canvas.height - elSize.height
 
-  const position: Position = {
-    x: Math.max(0, Math.min(rawX, maxX)),
-    y: Math.max(0, Math.min(rawY, maxY))
-  }
+  const position = clampPosition({ x: rawX, y: rawY }, elSize, editor.canvas)
 
   editor.addElement(type, position)
 }
@@ -49,13 +59,7 @@ function onCanvasClick(): void {
     <div
       ref="canvasRef"
       class="canvas-area__canvas"
-      :style="{
-        width: editor.canvas.width + 'px',
-        height: editor.canvas.height + 'px',
-        backgroundColor: editor.canvas.backgroundColor,
-        borderRadius: (editor.canvas.borderRadius ?? 8) + 'px',
-        boxShadow: '0 ' + (editor.canvas.boxShadow ?? 4) + 'px ' + ((editor.canvas.boxShadow ?? 4) * 6) + 'px rgba(0, 0, 0, ' + (editor.canvas.boxShadowOpacity ?? 0.08) + ')'
-      }"
+      :style="canvasStyle()"
       @dragover="onDragOver"
       @drop="onDrop"
       @click.self="onCanvasClick"

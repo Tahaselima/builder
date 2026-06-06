@@ -83,7 +83,7 @@ defineEmits<{
     height: 28px;
     border-radius: 6px;
     color: $color-text-secondary;
-    transition: all 0.15s ease;
+    transition: $transition-default;
 
     &:hover {
       background: $color-bg;

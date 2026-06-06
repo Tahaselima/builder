@@ -74,6 +74,16 @@ export type CanvasElement =
   | ImageElement
   | DividerElement
 
+// --- Element Update (type-safe partial per element type) ---
+
+export type ElementUpdate =
+  | Partial<Omit<HeadingElement, 'type'>> & { type?: 'heading' }
+  | Partial<Omit<TextElement, 'type'>> & { type?: 'text' }
+  | Partial<Omit<ButtonElement, 'type'>> & { type?: 'button' }
+  | Partial<Omit<ImageElement, 'type'>> & { type?: 'image' }
+  | Partial<Omit<DividerElement, 'type'>> & { type?: 'divider' }
+  | Partial<BaseElement>
+
 // --- Canvas Config ---
 
 export interface CanvasConfig {

@@ -60,7 +60,7 @@ const options: { value: HorizontalAlign; label: string }[] = [
 
     &--active {
       background: $color-primary;
-      color: #fff;
+      color: $color-surface;
     }
   }
 }

@@ -3,7 +3,7 @@ import cors from 'cors'
 import { templatesRouter } from './routes/templates.js'
 
 const app = express()
-const PORT = 3001
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001
 
 app.use(cors())
 app.use(express.json())

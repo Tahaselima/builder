@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import BaseModal from '@/components/base/BaseModal.vue'
-import { inputValue } from '@/utils/events'
 
 const emit = defineEmits<{
   save: [name: string]
