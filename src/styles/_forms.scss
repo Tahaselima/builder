@@ -1,0 +1,89 @@
+@use './variables' as *;
+
+.form-input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid $color-input-border;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s ease;
+
+  &:focus {
+    border-color: $color-input-focus;
+  }
+
+  &--small {
+    flex: 1;
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  &--textarea {
+    resize: vertical;
+    font-family: inherit;
+  }
+
+  &--color {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid $color-input-color-border;
+    border-radius: 6px;
+    cursor: pointer;
+    background: none;
+
+    &::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    &::-webkit-color-swatch {
+      border: none;
+      border-radius: 6px;
+    }
+  }
+}
+
+.form-color-row {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.form-range-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.form-range-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: $color-border;
+  border-radius: 2px;
+  outline: none;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: $color-primary;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.form-range-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: $color-text;
+  min-width: 40px;
+  text-align: right;
+  font-family: monospace;
+}

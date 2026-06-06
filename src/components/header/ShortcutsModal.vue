@@ -1,7 +1,5 @@
 <script setup lang="ts">
-defineEmits<{
-  close: []
-}>()
+import BaseModal from '@/components/base/BaseModal.vue'
 
 interface Shortcut {
   keys: string
@@ -20,84 +18,22 @@ const shortcuts: Shortcut[] = [
 </script>
 
 <template>
-  <div class="shortcuts-overlay" @click.self="$emit('close')">
-    <div class="shortcuts-modal">
-      <div class="shortcuts-modal__header">
-        <h3 class="shortcuts-modal__title">Keyboard Shortcuts</h3>
-        <button class="shortcuts-modal__close" @click="$emit('close')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-      </div>
-      <div class="shortcuts-modal__body">
-        <div v-for="(s, i) in shortcuts" :key="i" class="shortcut-row">
-          <span class="shortcut-row__keys">
-            <kbd v-for="key in s.keys.split(' + ')" :key="key">{{ key }}</kbd>
-          </span>
-          <span class="shortcut-row__action">{{ s.action }}</span>
-        </div>
-      </div>
+  <BaseModal title="Keyboard Shortcuts" width="320px" @close="$emit('close')">
+    <div v-for="(s, i) in shortcuts" :key="i" class="shortcut-row">
+      <span class="shortcut-row__keys">
+        <kbd v-for="key in s.keys.split(' + ')" :key="key">{{ key }}</kbd>
+      </span>
+      <span class="shortcut-row__action">{{ s.action }}</span>
     </div>
-  </div>
+  </BaseModal>
 </template>
+
+<script lang="ts">
+export default {}
+</script>
 
 <style scoped lang="scss">
 @use '@/styles/variables' as *;
-
-.shortcuts-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.2);
-  display: flex;
-  justify-content: flex-end;
-  padding: 68px 24px 0 0;
-  z-index: 1000;
-}
-
-.shortcuts-modal {
-  background: $color-surface;
-  border-radius: 12px;
-  width: 320px;
-  height: max-content;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  overflow: hidden;
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid $color-border;
-  }
-
-  &__title {
-    font-size: 14px;
-    font-weight: 600;
-    color: $color-text;
-  }
-
-  &__close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    color: $color-text-secondary;
-    transition: all 0.15s ease;
-
-    &:hover {
-      background: $color-bg;
-      color: $color-text;
-    }
-  }
-
-  &__body {
-    padding: 12px 20px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-}
 
 .shortcut-row {
   display: flex;

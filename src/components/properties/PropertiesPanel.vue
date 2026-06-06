@@ -56,7 +56,7 @@ function onUpdate(payload: Partial<CanvasElement>): void {
               title="Bring Forward"
               @click="editor.bringToFront(editor.selectedElement!.id)"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+              <BaseIcon name="layerUp" :size="14" />
               Forward
             </button>
             <button
@@ -64,7 +64,7 @@ function onUpdate(payload: Partial<CanvasElement>): void {
               title="Send Backward"
               @click="editor.sendToBack(editor.selectedElement!.id)"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
+              <BaseIcon name="layerDown" :size="14" />
               Backward
             </button>
           </div>
@@ -89,6 +89,7 @@ function onUpdate(payload: Partial<CanvasElement>): void {
 
 <style scoped lang="scss">
 @use '@/styles/variables' as *;
+@use '@/styles/buttons' as *;
 
 .properties-panel {
   width: $panel-width;
@@ -114,19 +115,8 @@ function onUpdate(payload: Partial<CanvasElement>): void {
   }
 
   &__delete {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    color: $color-text-secondary;
-    transition: all 0.15s ease;
-
-    &:hover {
-      background: #fef2f2;
-      color: $color-danger;
-    }
+    @extend .btn-icon--md;
+    @extend .btn-icon--danger;
   }
 
   &__body {

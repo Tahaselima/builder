@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { CanvasElement, Size } from '@/types'
 import { propertyConfigs } from '@/utils/propertyConfig'
 import type { PropertyFieldConfig } from '@/utils/propertyConfig'
+import { inputValue, inputNumber } from '@/utils/events'
 import PropertyField from '@/components/base/PropertyField.vue'
 import AlignPicker from '@/components/base/AlignPicker.vue'
 
@@ -41,80 +42,80 @@ function onSizeUpdate(dimension: 'width' | 'height', value: number): void {
             <span class="size-field__label">W</span>
             <input
               type="number"
-              class="input"
+              class="form-input"
               :value="element.size.width"
               min="20"
-              @input="onSizeUpdate('width', Number(($event.target as HTMLInputElement).value))"
+              @input="onSizeUpdate('width', inputNumber($event))"
             />
           </div>
           <div class="size-field">
             <span class="size-field__label">H</span>
             <input
               type="number"
-              class="input"
+              class="form-input"
               :value="element.size.height"
               min="20"
-              @input="onSizeUpdate('height', Number(($event.target as HTMLInputElement).value))"
+              @input="onSizeUpdate('height', inputNumber($event))"
             />
           </div>
         </div>
 
         <!-- Range Slider -->
-        <div v-else-if="field.type === 'range'" class="range-row">
+        <div v-else-if="field.type === 'range'" class="form-range-row">
           <input
             type="range"
-            class="range-slider"
+            class="form-range-slider"
             :value="getFieldValue(field)"
             :min="field.min"
             :max="field.max"
-            @input="onUpdate(field, Number(($event.target as HTMLInputElement).value))"
+            @input="onUpdate(field, inputNumber($event))"
           />
-          <span class="range-value">{{ getFieldValue(field) }}</span>
+          <span class="form-range-value">{{ getFieldValue(field) }}</span>
         </div>
 
         <!-- Text -->
         <input
           v-else-if="field.type === 'text'"
           type="text"
-          class="input"
+          class="form-input"
           :value="getFieldValue(field)"
           :placeholder="field.placeholder"
-          @input="onUpdate(field, ($event.target as HTMLInputElement).value)"
+          @input="onUpdate(field, inputValue($event))"
         />
 
         <!-- Textarea -->
         <textarea
           v-else-if="field.type === 'textarea'"
-          class="input input--textarea"
+          class="form-input form-input--textarea"
           :value="getFieldValue(field)"
           rows="2"
-          @input="onUpdate(field, ($event.target as HTMLTextAreaElement).value)"
+          @input="onUpdate(field, inputValue($event))"
         />
 
         <!-- Number -->
         <input
           v-else-if="field.type === 'number'"
           type="number"
-          class="input"
+          class="form-input"
           :value="getFieldValue(field)"
           :min="field.min"
           :max="field.max"
-          @input="onUpdate(field, Number(($event.target as HTMLInputElement).value))"
+          @input="onUpdate(field, inputNumber($event))"
         />
 
         <!-- Color -->
-        <div v-else-if="field.type === 'color'" class="color-row">
+        <div v-else-if="field.type === 'color'" class="form-color-row">
           <input
             type="color"
-            class="input--color"
+            class="form-input--color"
             :value="getFieldValue(field)"
-            @input="onUpdate(field, ($event.target as HTMLInputElement).value)"
+            @input="onUpdate(field, inputValue($event))"
           />
           <input
             type="text"
-            class="input input--small"
+            class="form-input form-input--small"
             :value="getFieldValue(field)"
-            @input="onUpdate(field, ($event.target as HTMLInputElement).value)"
+            @input="onUpdate(field, inputValue($event))"
           />
         </div>
 
@@ -130,6 +131,7 @@ function onSizeUpdate(dimension: 'width' | 'height', value: number): void {
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/forms' as *;
 @use '@/styles/variables' as *;
 
 .properties-editor {
@@ -153,95 +155,7 @@ function onSizeUpdate(dimension: 'width' | 'height', value: number): void {
   &__label {
     font-size: 11px;
     font-weight: 600;
-    color: #9ca3af;
-  }
-}
-
-.color-row {
-  display: flex;
-  gap: 6px;
-  width: 100%;
-}
-
-.range-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.range-value {
-  font-size: 12px;
-  font-weight: 600;
-  color: $color-text;
-  min-width: 28px;
-  text-align: right;
-  font-family: monospace;
-}
-
-.range-slider {
-  flex: 1;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 4px;
-  background: $color-border;
-  border-radius: 2px;
-  outline: none;
-
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: $color-primary;
-    cursor: pointer;
-    border: 2px solid #fff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  }
-}
-
-.input {
-  width: 100%;
-  padding: 6px 10px;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  font-size: 13px;
-  outline: none;
-  transition: border-color 0.15s ease;
-
-  &:focus {
-    border-color: #4f46e5;
-  }
-
-  &--textarea {
-    resize: vertical;
-    font-family: inherit;
-  }
-
-  &--small {
-    flex: 1;
-    font-family: monospace;
-    font-size: 12px;
-  }
-
-  &--color {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    cursor: pointer;
-    background: none;
-
-    &::-webkit-color-swatch-wrapper {
-      padding: 0;
-    }
-
-    &::-webkit-color-swatch {
-      border: none;
-      border-radius: 6px;
-    }
+    color: $color-text-secondary;
   }
 }
 </style>
