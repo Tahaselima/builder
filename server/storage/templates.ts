@@ -19,8 +19,18 @@ function ensureDataFile(): void {
 
 export function loadAll(): Template[] {
   ensureDataFile()
-  const raw = fs.readFileSync(DATA_FILE, 'utf-8')
-  return JSON.parse(raw) as Template[]
+  try {
+    const raw = fs.readFileSync(DATA_FILE, 'utf-8')
+    return JSON.parse(raw) as Template[]
+  } catch {
+    // Corrupted file — back up and reset
+    const backup = DATA_FILE + '.bak'
+    if (fs.existsSync(DATA_FILE)) {
+      fs.copyFileSync(DATA_FILE, backup)
+    }
+    fs.writeFileSync(DATA_FILE, '[]', 'utf-8')
+    return []
+  }
 }
 
 export function saveAll(templates: Template[]): void {

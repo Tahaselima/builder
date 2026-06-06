@@ -91,9 +91,9 @@ export interface CanvasConfig {
   width: number
   height: number
   backgroundColor: string
-  borderRadius?: number
-  boxShadow?: number
-  boxShadowOpacity?: number
+  borderRadius: number
+  boxShadow: number
+  boxShadowOpacity: number
 }
 
 // --- Template ---

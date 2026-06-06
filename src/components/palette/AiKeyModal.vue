@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import BaseModal from '@/components/base/BaseModal.vue'
-import { getApiKey, setApiKey } from '@/utils/ai'
+import { BaseModal } from '@/components'
+import { getApiKey, setApiKey } from '@/utils'
 
 defineEmits<{ close: [] }>()
 

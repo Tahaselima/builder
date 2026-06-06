@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useEditorStore } from '@/stores/editor'
-import { fetchTemplates, saveTemplate, deleteTemplate } from '@/utils/api'
-import { generateId } from '@/utils/id'
-import { downloadJson } from '@/utils/download'
-import { validateTemplate } from '@/utils/validation'
+import { useEditorStore } from './'
+import { fetchTemplates, saveTemplate, deleteTemplate, generateId, downloadJson, validateTemplate } from '@/utils'
 import type { Template } from '@/types'
+
+function getErrorMessage(e: unknown): string {
+  return e instanceof Error ? e.message : String(e)
+}
 
 export const useTemplatesStore = defineStore('templates', () => {
   const templates = ref<Template[]>([])
@@ -18,7 +19,7 @@ export const useTemplatesStore = defineStore('templates', () => {
     try {
       templates.value = await fetchTemplates()
     } catch (e) {
-      error.value = (e as Error).message
+      error.value = getErrorMessage(e)
     } finally {
       isLoading.value = false
     }
@@ -42,7 +43,7 @@ export const useTemplatesStore = defineStore('templates', () => {
       templates.value.push(saved)
       return saved
     } catch (e) {
-      error.value = (e as Error).message
+      error.value = getErrorMessage(e)
       return null
     }
   }
@@ -60,7 +61,7 @@ export const useTemplatesStore = defineStore('templates', () => {
       templates.value = templates.value.filter((t) => t.id !== id)
       return true
     } catch (e) {
-      error.value = (e as Error).message
+      error.value = getErrorMessage(e)
       return false
     }
   }
@@ -90,13 +91,18 @@ export const useTemplatesStore = defineStore('templates', () => {
       const reader = new FileReader()
       reader.onload = (e) => {
         try {
-          const parsed = JSON.parse(e.target?.result as string)
+          const result = e.target?.result
+          if (typeof result !== 'string') {
+            resolve({ success: false, error: 'Failed to read file' })
+            return
+          }
+          const parsed = JSON.parse(result)
           const validation = validateTemplate(parsed)
           if (!validation.valid) {
             resolve({ success: false, error: validation.error })
             return
           }
-          const template = parsed as Template
+          const template = validation.data
           template.id = template.id || generateId()
           const editor = useEditorStore()
           editor.loadElements([...template.elements], { ...template.canvas })

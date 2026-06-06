@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
-import { useEditorStore } from '@/stores/editor'
-import { useDragMove } from '@/composables/useDragMove'
-import { useResize } from '@/composables/useResize'
-import BaseIcon from '@/components/icon/BaseIcon.vue'
+import { useEditorStore } from '@/stores'
+import { useDragMove, useResize } from '@/composables'
+import { BaseIcon } from '@/components'
 import type { CanvasElement as CanvasElementType } from '@/types'
 
 const props = defineProps<{
@@ -47,8 +46,13 @@ function finishEditing(): void {
 
   if (editRef.value) {
     const newContent = editRef.value.textContent?.trim() ?? ''
-    if (newContent && newContent !== (props.element as { content: string }).content) {
-      editor.updateElement(props.element.id, { content: newContent })
+    if (newContent) {
+      const el = props.element
+      if (el.type === 'heading' || el.type === 'text') {
+        if (newContent !== el.content) {
+          editor.updateElement(props.element.id, { content: newContent })
+        }
+      }
     }
   }
 }

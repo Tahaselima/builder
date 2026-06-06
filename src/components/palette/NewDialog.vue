@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import BaseModal from '@/components/base/BaseModal.vue'
-import BaseIcon from '@/components/icon/BaseIcon.vue'
-import { useEditorStore } from '@/stores/editor'
-import { useTemplatesStore } from '@/stores/templates'
-import { generateTemplate, hasApiKey, getApiKey } from '@/utils/ai'
-import AiKeyModal from '@/components/header/AiKeyModal.vue'
+import { BaseModal, BaseIcon } from '@/components'
+import AiKeyModal from './AiKeyModal.vue'
+import { useEditorStore, useTemplatesStore } from '@/stores'
+import { generateTemplate, hasApiKey, getApiKey } from '@/utils'
 
 const editor = useEditorStore()
 const templates = useTemplatesStore()
@@ -201,7 +199,7 @@ async function onAIGenerate(): Promise<void> {
     flex-shrink: 0;
 
     &--ai {
-      background: linear-gradient(135deg, $color-primary, #a855f7);
+      background: linear-gradient(135deg, $color-primary, $color-accent-purple);
       color: $color-surface;
     }
   }

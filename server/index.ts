@@ -10,6 +10,12 @@ app.use(express.json())
 
 app.use('/api', templatesRouter)
 
+// Global error handler
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('Unhandled error:', err.message)
+  res.status(500).json({ success: false, error: 'Internal server error' })
+})
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`)
 })

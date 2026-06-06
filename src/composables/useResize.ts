@@ -1,12 +1,10 @@
 import { ref } from 'vue'
-import { useEditorStore } from '@/stores/editor'
-import { useMouseDrag } from '@/composables/useMouseDrag'
-import { clamp, snapPosition, snapSize } from '@/utils/canvas'
+import { useEditorStore } from '@/stores'
+import { useMouseDrag } from '@/composables'
+import { clamp, snapPosition, snapSize, MIN_ELEMENT_SIZE } from '@/utils'
 import type { Size, Position } from '@/types'
 
 type HandleCorner = 'tl' | 'tr' | 'bl' | 'br'
-
-const MIN_SIZE = 20
 
 export function useResize(elementId: () => string) {
   const editor = useEditorStore()
@@ -35,36 +33,36 @@ export function useResize(elementId: () => string) {
 
     // Right handles affect width
     if (corner === 'tr' || corner === 'br') {
-      newWidth = Math.max(MIN_SIZE, startSize.value.width + dx)
+      newWidth = Math.max(MIN_ELEMENT_SIZE, startSize.value.width + dx)
     }
     // Left handles affect width and x
     if (corner === 'tl' || corner === 'bl') {
-      const maxDx = startSize.value.width - MIN_SIZE
+      const maxDx = startSize.value.width - MIN_ELEMENT_SIZE
       const clampedDx = Math.min(dx, maxDx)
       newWidth = startSize.value.width - clampedDx
       newX = startPosition.value.x + clampedDx
     }
     // Bottom handles affect height
     if (corner === 'bl' || corner === 'br') {
-      newHeight = Math.max(MIN_SIZE, startSize.value.height + dy)
+      newHeight = Math.max(MIN_ELEMENT_SIZE, startSize.value.height + dy)
     }
     // Top handles affect height and y
     if (corner === 'tl' || corner === 'tr') {
-      const maxDy = startSize.value.height - MIN_SIZE
+      const maxDy = startSize.value.height - MIN_ELEMENT_SIZE
       const clampedDy = Math.min(dy, maxDy)
       newHeight = startSize.value.height - clampedDy
       newY = startPosition.value.y + clampedDy
     }
 
     // Clamp within canvas bounds
-    newX = clamp(newX, 0, editor.canvas.width - MIN_SIZE)
-    newY = clamp(newY, 0, editor.canvas.height - MIN_SIZE)
-    newWidth = clamp(newWidth, MIN_SIZE, editor.canvas.width - newX)
-    newHeight = clamp(newHeight, MIN_SIZE, editor.canvas.height - newY)
+    newX = clamp(newX, 0, editor.canvas.width - MIN_ELEMENT_SIZE)
+    newY = clamp(newY, 0, editor.canvas.height - MIN_ELEMENT_SIZE)
+    newWidth = clamp(newWidth, MIN_ELEMENT_SIZE, editor.canvas.width - newX)
+    newHeight = clamp(newHeight, MIN_ELEMENT_SIZE, editor.canvas.height - newY)
 
     // Snap to grid if enabled
     if (editor.gridEnabled) {
-      const snapped = snapSize({ width: newWidth, height: newHeight }, editor.gridSize, MIN_SIZE)
+      const snapped = snapSize({ width: newWidth, height: newHeight }, editor.gridSize, MIN_ELEMENT_SIZE)
       newWidth = snapped.width
       newHeight = snapped.height
       const snappedPos = snapPosition({ x: newX, y: newY }, editor.gridSize)

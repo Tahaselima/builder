@@ -1,5 +1,8 @@
 import type { Position, Size, CanvasConfig } from '@/types'
 
+/** Minimum element width/height in pixels. */
+export const MIN_ELEMENT_SIZE = 20
+
 /**
  * Clamp a value between min and max (inclusive).
  */
@@ -41,9 +44,23 @@ export function snapPosition(pos: Position, gridSize: number): Position {
 /**
  * Snap a size to grid, respecting minimum size.
  */
-export function snapSize(size: Size, gridSize: number, minSize: number = 20): Size {
+export function snapSize(size: Size, gridSize: number, minSize: number = MIN_ELEMENT_SIZE): Size {
   return {
     width: Math.max(minSize, snapToGrid(size.width, gridSize)),
     height: Math.max(minSize, snapToGrid(size.height, gridSize))
   }
+}
+
+/**
+ * Snap a position to grid then clamp within canvas bounds.
+ * Combines snapPosition + clampPosition into a single call.
+ */
+export function snapAndClampPosition(
+  pos: Position,
+  elementSize: Size,
+  canvasConfig: CanvasConfig,
+  gridSize: number
+): Position {
+  const snapped = snapPosition(pos, gridSize)
+  return clampPosition(snapped, elementSize, canvasConfig)
 }

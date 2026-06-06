@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ElementType } from '@/types'
-import BaseIcon from '@/components/icon/BaseIcon.vue'
+import { BaseIcon } from '@/components'
 
 defineProps<{
   type: ElementType

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useEditorStore } from '@/stores/editor'
-import BaseIcon from '@/components/icon/BaseIcon.vue'
-import PropertiesEditor from './PropertiesEditor.vue'
-import { ELEMENT_TYPE_LABELS } from '@/utils/elementDefaults'
+import { useEditorStore } from '@/stores'
+import { BaseIcon } from '@/components'
+import { PropertiesEditor } from './'
+import { ELEMENT_TYPE_LABELS } from '@/utils'
 import type { ElementUpdate } from '@/types'
 
 const editor = useEditorStore()

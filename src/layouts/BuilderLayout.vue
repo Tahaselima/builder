@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import AppHeader from '@/components/header/AppHeader.vue'
-import ElementPalette from '@/components/palette/ElementPalette.vue'
-import CanvasArea from '@/components/canvas/CanvasArea.vue'
-import PropertiesPanel from '@/components/properties/PropertiesPanel.vue'
-import { useKeyboard } from '@/composables/useKeyboard'
+import { AppHeader, ElementPalette, CanvasArea, PropertiesPanel } from '@/components'
+import { useKeyboard } from '@/composables'
 
 useKeyboard()
 </script>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import BaseModal from '@/components/base/BaseModal.vue'
+import { BaseModal } from '@/components'
 
 const emit = defineEmits<{
   save: [name: string]

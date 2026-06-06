@@ -1,27 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useEditorStore } from '@/stores/editor'
-import CanvasElement from '@/components/canvas/CanvasElement.vue'
-import { ELEMENT_DEFAULT_SIZE, DEFAULT_CANVAS } from '@/utils/elementDefaults'
-import { clampPosition, snapPosition } from '@/utils/canvas'
+import { useEditorStore } from '@/stores'
+import CanvasElement from './CanvasElement.vue'
+import { ELEMENT_DEFAULT_SIZE, clampPosition, snapPosition } from '@/utils'
+import { useCanvasStyle } from '@/composables'
 import type { ElementType } from '@/types'
 
 const editor = useEditorStore()
 const canvasRef = ref<HTMLElement | null>(null)
-
-function canvasStyle() {
-  const c = editor.canvas
-  const shadow: number = c.boxShadow ?? DEFAULT_CANVAS.boxShadow!
-  const shadowOpacity: number = c.boxShadowOpacity ?? DEFAULT_CANVAS.boxShadowOpacity!
-  const radius: number = c.borderRadius ?? DEFAULT_CANVAS.borderRadius!
-  return {
-    width: c.width + 'px',
-    height: c.height + 'px',
-    backgroundColor: c.backgroundColor,
-    borderRadius: radius + 'px',
-    boxShadow: `0 ${shadow}px ${shadow * 6}px rgba(0, 0, 0, ${shadowOpacity})`
-  }
-}
+const { canvasStyle } = useCanvasStyle(() => editor.canvas)
 
 function onDragOver(event: DragEvent): void {
   event.preventDefault()
@@ -65,7 +52,7 @@ function onCanvasClick(): void {
     <div
       ref="canvasRef"
       class="canvas-area__canvas"
-      :style="canvasStyle()"
+      :style="canvasStyle"
       @dragover="onDragOver"
       @drop="onDrop"
       @click.self="onCanvasClick"

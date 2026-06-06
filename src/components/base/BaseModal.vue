@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BaseIcon from '@/components/icon/BaseIcon.vue'
+import { BaseIcon } from '@/components'
 
 withDefaults(defineProps<{
   title: string
@@ -44,7 +44,7 @@ defineEmits<{
   background: $color-overlay;
   display: flex;
   justify-content: flex-end;
-  padding: 68px 24px 0 0;
+  padding: $modal-header-offset $modal-side-padding 0 0;
   z-index: 1000;
 
   &--center {

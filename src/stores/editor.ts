@@ -8,9 +8,10 @@ import type {
   Position,
   Size
 } from '@/types'
-import { DEFAULT_CANVAS, createElementDefaults, DIVIDER_PADDING } from '@/utils/elementDefaults'
-import { generateId } from '@/utils/id'
-import { clamp } from '@/utils/canvas'
+import { DEFAULT_CANVAS, createElementDefaults, DIVIDER_PADDING, generateId, clamp } from '@/utils'
+
+const MAX_HISTORY = 50
+const PASTE_OFFSET = 20
 
 export const useEditorStore = defineStore('editor', () => {
   // --- State ---
@@ -29,7 +30,7 @@ export const useEditorStore = defineStore('editor', () => {
   // Undo/Redo history
   const history = ref<string[]>([JSON.stringify([])])
   const historyIndex = ref(0)
-  const maxHistory = 50
+  const maxHistory = MAX_HISTORY
 
   // --- Element Lookup Helpers ---
   function getElementIndex(id: string): number {
@@ -68,8 +69,7 @@ export const useEditorStore = defineStore('editor', () => {
   function restoreFromHistory(): void {
     try {
       elements.value = JSON.parse(history.value[historyIndex.value])
-    } catch (e) {
-      console.error('Failed to restore history snapshot', e)
+    } catch {
       // Reset to last known good state
       history.value = history.value.slice(0, historyIndex.value)
     }
@@ -113,13 +113,17 @@ export const useEditorStore = defineStore('editor', () => {
     const index = getElementIndex(id)
     if (index === -1) return
 
-    const updated = { ...elements.value[index], ...updates } as CanvasElement
+    const existing = elements.value[index]
+    const updated = { ...existing, ...updates } as CanvasElement
 
     // Divider: sync size.height when thickness changes
-    if ('thickness' in updates && updated.type === 'divider') {
-      updated.size = {
-        width: updated.size.width,
-        height: (updates as Record<string, unknown>).thickness as number + DIVIDER_PADDING
+    if (updated.type === 'divider' && 'thickness' in updates) {
+      const thickness = (updates as Partial<{ thickness: number }>).thickness
+      if (thickness !== undefined) {
+        updated.size = {
+          width: updated.size.width,
+          height: thickness + DIVIDER_PADDING
+        }
       }
     }
 
@@ -174,8 +178,8 @@ export const useEditorStore = defineStore('editor', () => {
     clone.id = generateId()
     clone.zIndex = nextZIndex.value++
     clone.position = {
-      x: clamp(clone.position.x + 20, 0, canvas.value.width - clone.size.width),
-      y: clamp(clone.position.y + 20, 0, canvas.value.height - clone.size.height)
+      x: clamp(clone.position.x + PASTE_OFFSET, 0, canvas.value.width - clone.size.width),
+      y: clamp(clone.position.y + PASTE_OFFSET, 0, canvas.value.height - clone.size.height)
     }
     elements.value.push(clone)
     selectedElementId.value = clone.id
@@ -203,6 +207,11 @@ export const useEditorStore = defineStore('editor', () => {
     canvas.value = { ...DEFAULT_CANVAS }
     history.value = [JSON.stringify([])]
     historyIndex.value = 0
+  }
+
+  function updateCanvas(updates: Partial<CanvasConfig>): void {
+    canvas.value = { ...canvas.value, ...updates }
+    pushHistory()
   }
 
   function loadElements(newElements: CanvasElement[], newCanvas: CanvasConfig): void {
@@ -246,6 +255,7 @@ export const useEditorStore = defineStore('editor', () => {
     toggleGrid,
     setGridSize,
     clearCanvas,
+    updateCanvas,
     loadElements,
     undo,
     redo

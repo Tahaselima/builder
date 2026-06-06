@@ -1,4 +1,5 @@
 import type { Template } from '@/types'
+import { validateTemplate } from '@/utils/validation'
 
 const AI_STORAGE_KEY = 'builder_openai_key'
 const MODEL = 'gpt-4o-mini'
@@ -87,28 +88,26 @@ Rules:
     throw new Error('AI returned invalid JSON. Please try again.')
   }
 
-  // Basic validation
-  if (!parsed || typeof parsed !== 'object') {
-    throw new Error('AI returned an invalid template structure')
-  }
-
+  // Assign defaults for missing fields before validation
   const obj = parsed as Record<string, unknown>
-  if (!Array.isArray(obj.elements)) {
-    throw new Error('Template must contain an elements array')
-  }
-
-  // Assign IDs if missing
   if (!obj.id) obj.id = crypto.randomUUID()
   if (!obj.name) obj.name = 'AI Generated'
   if (!obj.createdAt) obj.createdAt = new Date().toISOString()
   if (!obj.updatedAt) obj.updatedAt = new Date().toISOString()
 
-  // Ensure each element has an id
-  const elements = obj.elements as Record<string, unknown>[]
-  elements.forEach((el) => {
-    if (!el.id) el.id = crypto.randomUUID()
-    if (!el.zIndex && el.zIndex !== 0) el.zIndex = 0
-  })
+  if (Array.isArray(obj.elements)) {
+    const elements = obj.elements as Record<string, unknown>[]
+    elements.forEach((el) => {
+      if (!el.id) el.id = crypto.randomUUID()
+      if (!el.zIndex && el.zIndex !== 0) el.zIndex = 0
+    })
+  }
 
-  return parsed as Template
+  // Validate using shared validator
+  const result = validateTemplate(parsed)
+  if (!result.valid) {
+    throw new Error(`AI template validation failed: ${result.error}`)
+  }
+
+  return result.data
 }

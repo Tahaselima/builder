@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { CanvasElement, ElementUpdate, Size } from '@/types'
-import { propertyConfigs } from '@/utils/propertyConfig'
-import type { PropertyFieldConfig } from '@/utils/propertyConfig'
-import { inputValue, inputNumber } from '@/utils/events'
-import PropertyField from '@/components/base/PropertyField.vue'
-import AlignPicker from '@/components/base/AlignPicker.vue'
+import type { CanvasElement, ElementUpdate, HorizontalAlign, Size } from '@/types'
+import { AlignPicker, propertyConfigs, type PropertyFieldConfig } from './'
+import { inputValue, inputNumber } from '@/utils'
+import { PropertyField } from '@/components'
 
 const props = defineProps<{
   element: CanvasElement
@@ -18,7 +16,14 @@ const emit = defineEmits<{
 const fields = computed(() => propertyConfigs[props.element.type] ?? [])
 
 function getFieldValue(field: PropertyFieldConfig): string | number {
-  return (props.element as unknown as Record<string, unknown>)[field.key] as string | number
+  const el = props.element
+  // Size is handled separately via onSizeUpdate
+  if (field.key === 'size') return 0
+
+  // Dynamic property access on discriminated union — all property keys are valid strings
+  const record = el as unknown as Record<string, unknown>
+  const value = record[field.key]
+  return (value as string | number) ?? ''
 }
 
 function onUpdate(field: PropertyFieldConfig, value: string | number): void {
@@ -122,7 +127,7 @@ function onSizeUpdate(dimension: 'width' | 'height', value: number): void {
         <!-- Align -->
         <AlignPicker
           v-else-if="field.type === 'align'"
-          :model-value="getFieldValue(field) as 'left' | 'center' | 'right'"
+          :model-value="getFieldValue(field) as HorizontalAlign"
           @update:model-value="onUpdate(field, $event)"
         />
       </PropertyField>

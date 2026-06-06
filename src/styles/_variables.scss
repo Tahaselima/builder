@@ -22,6 +22,7 @@ $color-success: #059669;
 $color-success-light: #ecfdf5;
 $color-warning: #a16207;
 $color-warning-light: #fefce8;
+$color-accent-purple: #a855f7;
 $color-overlay: rgba(0, 0, 0, 0.2);
 $color-shadow: rgba(0, 0, 0, 0.12);
 
@@ -36,3 +37,7 @@ $padding-panel: 16px;
 
 // Transitions
 $transition-default: all 0.15s ease;
+
+// Modal
+$modal-header-offset: $header-height + 12px;
+$modal-side-padding: 24px;

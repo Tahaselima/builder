@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useTemplatesStore } from '@/stores/templates'
-import BaseIcon from '@/components/icon/BaseIcon.vue'
+import { useTemplatesStore } from '@/stores'
+import { BaseIcon } from '@/components'
 
 const templates = useTemplatesStore()
 

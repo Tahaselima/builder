@@ -102,7 +102,7 @@ export function createElementDefaults(type: ElementType, canvas: CanvasConfig): 
         href: '#',
         fontSize: 14,
         color: colors.color,
-        backgroundColor: colors.backgroundColor!,
+        backgroundColor: colors.backgroundColor ?? '#4f46e5',
         borderRadius: 8,
         align: 'center'
       } satisfies ButtonElement

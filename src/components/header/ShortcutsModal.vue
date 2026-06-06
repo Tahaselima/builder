@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BaseModal from '@/components/base/BaseModal.vue'
+import { BaseModal } from '@/components'
 
 interface Shortcut {
   keys: string

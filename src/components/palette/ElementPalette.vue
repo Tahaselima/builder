@@ -1,12 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import PaletteItem from './PaletteItem.vue'
-import SaveDialog from './SaveDialog.vue'
-import NewDialog from './NewDialog.vue'
-import TemplateList from './TemplateList.vue'
-import { useEditorStore } from '@/stores/editor'
-import { useTemplatesStore } from '@/stores/templates'
-import { ELEMENT_TYPE_LABELS } from '@/utils/elementDefaults'
+import { PaletteItem, SaveDialog, NewDialog, TemplateList } from './'
+import { useEditorStore, useTemplatesStore } from '@/stores'
+import { ELEMENT_TYPE_LABELS } from '@/utils'
 import type { ElementType } from '@/types'
 
 const editor = useEditorStore()

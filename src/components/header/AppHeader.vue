@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useEditorStore } from '@/stores/editor'
-import BaseIcon from '@/components/icon/BaseIcon.vue'
-import ShortcutsModal from './ShortcutsModal.vue'
-import SettingsModal from './SettingsModal.vue'
-import PreviewModal from './PreviewModal.vue'
+import { useEditorStore } from '@/stores'
+import { BaseIcon } from '@/components'
+import { ShortcutsModal, SettingsModal, PreviewModal } from './'
 
 const editor = useEditorStore()
 const showShortcuts = ref(false)

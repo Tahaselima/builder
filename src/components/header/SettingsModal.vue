@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
-import { useEditorStore } from '@/stores/editor'
-import BaseModal from '@/components/base/BaseModal.vue'
-import PropertyField from '@/components/base/PropertyField.vue'
-import { inputValue, inputNumber } from '@/utils/events'
-import { DEFAULT_CANVAS } from '@/utils/elementDefaults'
+import { useEditorStore } from '@/stores'
+import { BaseModal, PropertyField } from '@/components'
+import { inputValue, inputNumber, DEFAULT_CANVAS } from '@/utils'
 
 const editor = useEditorStore()
 
@@ -25,10 +23,12 @@ const settings = reactive({
 })
 
 function onInput(): void {
-  editor.canvas.backgroundColor = settings.backgroundColor
-  editor.canvas.borderRadius = settings.borderRadius
-  editor.canvas.boxShadow = settings.boxShadow
-  editor.canvas.boxShadowOpacity = settings.boxShadowOpacity
+  editor.updateCanvas({
+    backgroundColor: settings.backgroundColor,
+    borderRadius: settings.borderRadius,
+    boxShadow: settings.boxShadow,
+    boxShadowOpacity: settings.boxShadowOpacity
+  })
 }
 </script>
 

@@ -1,0 +1,5 @@
+export { default as PropertiesPanel } from './PropertiesPanel.vue'
+export { default as PropertiesEditor } from './PropertiesEditor.vue'
+export { default as AlignPicker } from './AlignPicker.vue'
+export { propertyConfigs } from './propertyConfig'
+export type { PropertyFieldConfig, FieldType } from './propertyConfig'

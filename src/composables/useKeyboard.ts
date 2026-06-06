@@ -1,9 +1,9 @@
 import { onMounted, onUnmounted } from 'vue'
-import { useEditorStore } from '@/stores/editor'
-import { clampPosition, snapPosition } from '@/utils/canvas'
+import { useEditorStore } from '@/stores'
+import { clampPosition, snapAndClampPosition } from '@/utils'
 
-const NUDGE = 1
-const NUDGE_FAST = 10
+const NUDGE_STEP = 1
+const NUDGE_STEP_FAST = 10
 
 export function useKeyboard() {
   const editor = useEditorStore()
@@ -45,7 +45,7 @@ export function useKeyboard() {
       const el = editor.getElementById(selected)
       if (!el) return
 
-      const step = event.shiftKey ? NUDGE_FAST : NUDGE
+      const step = event.shiftKey ? NUDGE_STEP_FAST : NUDGE_STEP
       let { x, y } = el.position
 
       switch (event.key) {
@@ -56,12 +56,14 @@ export function useKeyboard() {
       }
 
       if (editor.gridEnabled) {
-        const snapped = snapPosition({ x, y }, editor.gridSize)
+        const snapped = snapAndClampPosition({ x, y }, el.size, editor.canvas, editor.gridSize)
         x = snapped.x
         y = snapped.y
       }
 
-      const newPos = clampPosition({ x, y }, el.size, editor.canvas)
+      const newPos = editor.gridEnabled
+        ? { x, y }
+        : clampPosition({ x, y }, el.size, editor.canvas)
 
       editor.moveElement(selected, newPos)
       editor.commitMoveResize()
