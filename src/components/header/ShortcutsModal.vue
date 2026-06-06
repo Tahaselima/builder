@@ -11,6 +11,10 @@ const shortcuts: Shortcut[] = [
   { keys: 'Escape', action: 'Deselect element' },
   { keys: 'Arrow keys', action: 'Nudge element 1px' },
   { keys: 'Shift + Arrow', action: 'Nudge element 10px' },
+  { keys: 'Ctrl/⌘ + C', action: 'Copy selected element' },
+  { keys: 'Ctrl/⌘ + V', action: 'Paste copied element' },
+  { keys: 'Ctrl/⌘ + D', action: 'Duplicate selected element' },
+  { keys: 'G', action: 'Toggle grid snap' },
   { keys: 'Ctrl/⌘ + Z', action: 'Undo' },
   { keys: 'Ctrl/⌘ + Shift + Z', action: 'Redo' },
   { keys: 'Ctrl/⌘ + Y', action: 'Redo' }

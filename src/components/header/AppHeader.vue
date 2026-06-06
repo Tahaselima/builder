@@ -4,10 +4,12 @@ import { useEditorStore } from '@/stores/editor'
 import BaseIcon from '@/components/icon/BaseIcon.vue'
 import ShortcutsModal from './ShortcutsModal.vue'
 import SettingsModal from './SettingsModal.vue'
+import PreviewModal from './PreviewModal.vue'
 
 const editor = useEditorStore()
 const showShortcuts = ref(false)
 const showSettings = ref(false)
+const showPreview = ref(false)
 </script>
 
 <template>
@@ -38,6 +40,23 @@ const showSettings = ref(false)
 
       <button
         class="btn-icon btn-icon--lg"
+        :class="{ 'btn-icon--active': editor.gridEnabled }"
+        :title="editor.gridEnabled ? 'Disable Grid (G)' : 'Enable Grid (G)'"
+        @click="editor.toggleGrid()"
+      >
+        <BaseIcon name="grid" />
+      </button>
+
+      <button
+        class="btn-icon btn-icon--lg"
+        title="Preview"
+        @click="showPreview = true"
+      >
+        <BaseIcon name="eye" />
+      </button>
+
+      <button
+        class="btn-icon btn-icon--lg"
         title="Canvas Settings"
         @click="showSettings = true"
       >
@@ -53,6 +72,11 @@ const showSettings = ref(false)
       </button>
     </div>
   </header>
+
+  <PreviewModal
+    v-if="showPreview"
+    @close="showPreview = false"
+  />
 
   <SettingsModal
     v-if="showSettings"
@@ -95,5 +119,10 @@ const showSettings = ref(false)
     display: flex;
     gap: 4px;
   }
+}
+
+.btn-icon--active {
+  background: $color-primary-light;
+  color: $color-primary;
 }
 </style>

@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { useEditorStore } from '@/stores/editor'
 import { useMouseDrag } from '@/composables/useMouseDrag'
-import { clampPosition } from '@/utils/canvas'
+import { clampPosition, snapPosition } from '@/utils/canvas'
 
 export function useDragMove(elementId: () => string) {
   const editor = useEditorStore()
@@ -18,11 +18,16 @@ export function useDragMove(elementId: () => string) {
     const dx = event.clientX - startMouse.value.x
     const dy = event.clientY - startMouse.value.y
 
-    const newPos = clampPosition(
+    let newPos = clampPosition(
       { x: startPosition.value.x + dx, y: startPosition.value.y + dy },
       el.size,
       editor.canvas
     )
+
+    if (editor.gridEnabled) {
+      newPos = snapPosition(newPos, editor.gridSize)
+      newPos = clampPosition(newPos, el.size, editor.canvas)
+    }
 
     editor.moveElement(id, newPos)
   }

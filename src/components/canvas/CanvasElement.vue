@@ -92,9 +92,10 @@ function finishEditing(): void {
     </div>
 
     <!-- Button -->
-    <div
+    <a
       v-else-if="element.type === 'button'"
       class="canvas-element__content canvas-element__button"
+      :href="element.href || '#'"
       :style="{
         fontSize: element.fontSize + 'px',
         color: element.color,
@@ -102,9 +103,10 @@ function finishEditing(): void {
         borderRadius: element.borderRadius + 'px',
         '--btn-align': element.align === 'left' ? 'flex-start' : element.align === 'right' ? 'flex-end' : 'center'
       }"
+      @click.prevent
     >
       {{ element.content }}
-    </div>
+    </a>
 
     <!-- Image -->
     <div v-else-if="element.type === 'image'" class="canvas-element__content canvas-element__image">
@@ -131,14 +133,32 @@ function finishEditing(): void {
 
     <!-- Resize Handles -->
     <template v-if="isSelected && !isEditing">
-      <button
-        class="canvas-element__delete"
-        title="Delete"
-        @mousedown.stop.prevent
-        @click.stop="editor.removeElement(element.id)"
-      >
-        <BaseIcon name="trash" :size="11" />
-      </button>
+      <div class="canvas-element__actions">
+        <button
+          class="canvas-element__action-btn"
+          title="Bring Forward"
+          @mousedown.stop.prevent
+          @click.stop="editor.bringToFront(element.id)"
+        >
+          <BaseIcon name="layerUp" :size="11" />
+        </button>
+        <button
+          class="canvas-element__action-btn"
+          title="Send Backward"
+          @mousedown.stop.prevent
+          @click.stop="editor.sendToBack(element.id)"
+        >
+          <BaseIcon name="layerDown" :size="11" />
+        </button>
+        <button
+          class="canvas-element__action-btn canvas-element__action-btn--delete"
+          title="Delete"
+          @mousedown.stop.prevent
+          @click.stop="editor.removeElement(element.id)"
+        >
+          <BaseIcon name="trash" :size="11" />
+        </button>
+      </div>
       <div class="resize-handle resize-handle--tl" @mousedown.stop.prevent="onResizeStart($event, 'tl')" />
       <div class="resize-handle resize-handle--tr" @mousedown.stop.prevent="onResizeStart($event, 'tr')" />
       <div class="resize-handle resize-handle--bl" @mousedown.stop.prevent="onResizeStart($event, 'bl')" />
@@ -209,6 +229,8 @@ function finishEditing(): void {
     align-items: center;
     font-weight: 600;
     justify-content: var(--btn-align, center);
+    text-decoration: none;
+    cursor: pointer;
   }
 
   &__image {
@@ -240,10 +262,16 @@ function finishEditing(): void {
     transform: translateY(-50%);
   }
 
-  &__delete {
+  &__actions {
     position: absolute;
     top: -30px;
     right: -8px;
+    display: flex;
+    gap: 3px;
+    z-index: 11;
+  }
+
+  &__action-btn {
     width: 22px;
     height: 22px;
     display: flex;
@@ -252,16 +280,19 @@ function finishEditing(): void {
     border-radius: 50%;
     background: $color-surface;
     color: $color-text-secondary;
-    z-index: 11;
     cursor: pointer;
     opacity: 0.5;
     transition: $transition-default;
 
     &:hover {
       opacity: 1;
-      color: $color-danger;
+      color: $color-primary;
       transform: scale(1.2);
       box-shadow: 0 1px 4px $color-shadow;
+    }
+
+    &--delete:hover {
+      color: $color-danger;
     }
   }
 }

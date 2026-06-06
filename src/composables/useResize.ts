@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { useEditorStore } from '@/stores/editor'
 import { useMouseDrag } from '@/composables/useMouseDrag'
-import { clamp } from '@/utils/canvas'
+import { clamp, snapPosition, snapSize } from '@/utils/canvas'
 import type { Size, Position } from '@/types'
 
 type HandleCorner = 'tl' | 'tr' | 'bl' | 'br'
@@ -61,6 +61,16 @@ export function useResize(elementId: () => string) {
     newY = clamp(newY, 0, editor.canvas.height - MIN_SIZE)
     newWidth = clamp(newWidth, MIN_SIZE, editor.canvas.width - newX)
     newHeight = clamp(newHeight, MIN_SIZE, editor.canvas.height - newY)
+
+    // Snap to grid if enabled
+    if (editor.gridEnabled) {
+      const snapped = snapSize({ width: newWidth, height: newHeight }, editor.gridSize, MIN_SIZE)
+      newWidth = snapped.width
+      newHeight = snapped.height
+      const snappedPos = snapPosition({ x: newX, y: newY }, editor.gridSize)
+      newX = clamp(snappedPos.x, 0, editor.canvas.width - newWidth)
+      newY = clamp(snappedPos.y, 0, editor.canvas.height - newHeight)
+    }
 
     const newSize: Size = { width: newWidth, height: newHeight }
     const newPos: Position = { x: newX, y: newY }

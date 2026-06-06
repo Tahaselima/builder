@@ -26,6 +26,7 @@ export const propertyConfigs: Record<ElementType, PropertyFieldConfig[]> = {
   ],
   button: [
     { key: 'content', label: 'Text', type: 'text' },
+    { key: 'href', label: 'Link URL', type: 'text', placeholder: '#' },
     { key: 'fontSize', label: 'Font Size', type: 'range', min: 10, max: 72 },
     { key: 'color', label: 'Text Color', type: 'color' },
     { key: 'backgroundColor', label: 'Background', type: 'color' },

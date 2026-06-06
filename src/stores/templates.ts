@@ -4,6 +4,7 @@ import { useEditorStore } from '@/stores/editor'
 import { fetchTemplates, saveTemplate, deleteTemplate } from '@/utils/api'
 import { generateId } from '@/utils/id'
 import { downloadJson } from '@/utils/download'
+import { validateTemplate } from '@/utils/validation'
 import type { Template } from '@/types'
 
 export const useTemplatesStore = defineStore('templates', () => {
@@ -84,6 +85,33 @@ export const useTemplatesStore = defineStore('templates', () => {
     downloadJson(template, 'template.json')
   }
 
+  function importFromJson(file: File): Promise<{ success: boolean; error?: string }> {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target?.result as string)
+          const validation = validateTemplate(parsed)
+          if (!validation.valid) {
+            resolve({ success: false, error: validation.error })
+            return
+          }
+          const template = parsed as Template
+          template.id = template.id || generateId()
+          const editor = useEditorStore()
+          editor.loadElements([...template.elements], { ...template.canvas })
+          resolve({ success: true })
+        } catch {
+          resolve({ success: false, error: 'Invalid JSON file: could not parse' })
+        }
+      }
+      reader.onerror = () => {
+        resolve({ success: false, error: 'Failed to read file' })
+      }
+      reader.readAsText(file)
+    })
+  }
+
   return {
     templates,
     isLoading,
@@ -93,6 +121,7 @@ export const useTemplatesStore = defineStore('templates', () => {
     loadToEditor,
     remove,
     exportAsJson,
-    exportCurrentAsJson
+    exportCurrentAsJson,
+    importFromJson
   }
 })

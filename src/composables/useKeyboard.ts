@@ -1,6 +1,6 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useEditorStore } from '@/stores/editor'
-import { clampPosition } from '@/utils/canvas'
+import { clampPosition, snapPosition } from '@/utils/canvas'
 
 const NUDGE = 1
 const NUDGE_FAST = 10
@@ -33,6 +33,12 @@ export function useKeyboard() {
       return
     }
 
+    // G — toggle grid snap
+    if (event.key === 'g' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      editor.toggleGrid()
+      return
+    }
+
     // Arrow keys — nudge selected element
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key) && selected) {
       event.preventDefault()
@@ -49,10 +55,37 @@ export function useKeyboard() {
         case 'ArrowRight': x += step; break
       }
 
+      if (editor.gridEnabled) {
+        const snapped = snapPosition({ x, y }, editor.gridSize)
+        x = snapped.x
+        y = snapped.y
+      }
+
       const newPos = clampPosition({ x, y }, el.size, editor.canvas)
 
       editor.moveElement(selected, newPos)
       editor.commitMoveResize()
+      return
+    }
+
+    // Ctrl+C / Cmd+C — copy
+    if ((event.ctrlKey || event.metaKey) && event.key === 'c' && selected) {
+      event.preventDefault()
+      editor.copyElement()
+      return
+    }
+
+    // Ctrl+V / Cmd+V — paste
+    if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
+      event.preventDefault()
+      editor.pasteElement()
+      return
+    }
+
+    // Ctrl+D / Cmd+D — duplicate
+    if ((event.ctrlKey || event.metaKey) && event.key === 'd' && selected) {
+      event.preventDefault()
+      editor.duplicateElement()
       return
     }
 

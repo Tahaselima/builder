@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useEditorStore } from '@/stores/editor'
 import CanvasElement from '@/components/canvas/CanvasElement.vue'
 import { ELEMENT_DEFAULT_SIZE, DEFAULT_CANVAS } from '@/utils/elementDefaults'
-import { clampPosition } from '@/utils/canvas'
+import { clampPosition, snapPosition } from '@/utils/canvas'
 import type { ElementType } from '@/types'
 
 const editor = useEditorStore()
@@ -41,8 +41,14 @@ function onDrop(event: DragEvent): void {
   const elSize = ELEMENT_DEFAULT_SIZE[type] ?? { width: 100, height: 40 }
 
   // Center element on cursor, then clamp within canvas bounds
-  const rawX = event.clientX - rect.left - elSize.width / 2
-  const rawY = event.clientY - rect.top - elSize.height / 2
+  let rawX = event.clientX - rect.left - elSize.width / 2
+  let rawY = event.clientY - rect.top - elSize.height / 2
+
+  if (editor.gridEnabled) {
+    const snapped = snapPosition({ x: rawX, y: rawY }, editor.gridSize)
+    rawX = snapped.x
+    rawY = snapped.y
+  }
 
   const position = clampPosition({ x: rawX, y: rawY }, elSize, editor.canvas)
 
@@ -68,6 +74,14 @@ function onCanvasClick(): void {
         v-for="el in editor.sortedElements"
         :key="el.id"
         :element="el"
+      />
+      <div
+        v-if="editor.gridEnabled"
+        class="canvas-area__grid-overlay"
+        :style="{
+          backgroundSize: editor.gridSize + 'px ' + editor.gridSize + 'px',
+          backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px)'
+        }"
       />
       <p v-if="editor.elements.length === 0" class="canvas-area__placeholder">
         Drag elements here
@@ -109,6 +123,14 @@ function onCanvasClick(): void {
     font-size: 14px;
     pointer-events: none;
     opacity: 0.6;
+  }
+
+  &__grid-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: inherit;
   }
 }
 </style>

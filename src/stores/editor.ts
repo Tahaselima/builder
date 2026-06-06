@@ -9,6 +9,8 @@ import type {
   Size
 } from '@/types'
 import { DEFAULT_CANVAS, createElementDefaults, DIVIDER_PADDING } from '@/utils/elementDefaults'
+import { generateId } from '@/utils/id'
+import { clamp } from '@/utils/canvas'
 
 export const useEditorStore = defineStore('editor', () => {
   // --- State ---
@@ -16,6 +18,13 @@ export const useEditorStore = defineStore('editor', () => {
   const selectedElementId = ref<string | null>(null)
   const canvas = ref<CanvasConfig>({ ...DEFAULT_CANVAS })
   const nextZIndex = ref(1)
+
+  // Grid snap
+  const gridEnabled = ref(false)
+  const gridSize = ref(10)
+
+  // Clipboard
+  const clipboard = ref<CanvasElement | null>(null)
 
   // Undo/Redo history
   const history = ref<string[]>([JSON.stringify([])])
@@ -152,6 +161,41 @@ export const useEditorStore = defineStore('editor', () => {
     pushHistory()
   }
 
+  function copyElement(): void {
+    if (!selectedElementId.value) return
+    const el = getElementById(selectedElementId.value)
+    if (!el) return
+    clipboard.value = JSON.parse(JSON.stringify(el))
+  }
+
+  function pasteElement(): void {
+    if (!clipboard.value) return
+    const clone = JSON.parse(JSON.stringify(clipboard.value)) as CanvasElement
+    clone.id = generateId()
+    clone.zIndex = nextZIndex.value++
+    clone.position = {
+      x: clamp(clone.position.x + 20, 0, canvas.value.width - clone.size.width),
+      y: clamp(clone.position.y + 20, 0, canvas.value.height - clone.size.height)
+    }
+    elements.value.push(clone)
+    selectedElementId.value = clone.id
+    pushHistory()
+  }
+
+  function duplicateElement(): void {
+    if (!selectedElementId.value) return
+    copyElement()
+    pasteElement()
+  }
+
+  function toggleGrid(): void {
+    gridEnabled.value = !gridEnabled.value
+  }
+
+  function setGridSize(size: number): void {
+    gridSize.value = size
+  }
+
   function clearCanvas(): void {
     elements.value = []
     selectedElementId.value = null
@@ -176,6 +220,9 @@ export const useEditorStore = defineStore('editor', () => {
     selectedElementId,
     canvas,
     nextZIndex,
+    gridEnabled,
+    gridSize,
+    clipboard,
     // Getters
     selectedElement,
     sortedElements,
@@ -193,6 +240,11 @@ export const useEditorStore = defineStore('editor', () => {
     selectElement,
     bringToFront,
     sendToBack,
+    copyElement,
+    pasteElement,
+    duplicateElement,
+    toggleGrid,
+    setGridSize,
     clearCanvas,
     loadElements,
     undo,

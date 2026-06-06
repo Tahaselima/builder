@@ -99,6 +99,7 @@ export function createElementDefaults(type: ElementType, canvas: CanvasConfig): 
         size: { ...size },
         zIndex: 0,
         content: 'Click Me',
+        href: '#',
         fontSize: 14,
         color: colors.color,
         backgroundColor: colors.backgroundColor!,

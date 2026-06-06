@@ -46,6 +46,7 @@ export interface TextElement extends BaseElement {
 export interface ButtonElement extends BaseElement {
   type: 'button'
   content: string
+  href: string
   fontSize: number
   color: string
   backgroundColor: string

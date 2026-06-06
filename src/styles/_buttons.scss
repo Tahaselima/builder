@@ -84,6 +84,12 @@
     border-color: $color-warning;
     color: $color-warning;
   }
+
+  &--import:hover {
+    background: $color-primary-light;
+    border-color: $color-primary;
+    color: $color-primary;
+  }
 }
 
 // --- Layer Buttons ---

@@ -92,6 +92,21 @@ function onInput(): void {
         <span class="form-range-value">{{ Math.round(settings.boxShadowOpacity * 100) }}%</span>
       </div>
     </PropertyField>
+
+    <PropertyField label="Grid Size">
+      <div class="form-range-row">
+        <select
+          class="form-input"
+          :value="editor.gridSize"
+          @change="editor.setGridSize(inputNumber($event))"
+        >
+          <option :value="5">5px</option>
+          <option :value="10">10px</option>
+          <option :value="20">20px</option>
+          <option :value="50">50px</option>
+        </select>
+      </div>
+    </PropertyField>
   </BaseModal>
 </template>
 
