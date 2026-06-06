@@ -64,7 +64,7 @@ const { onMouseDown } = useDragMove(() => props.element.id)
         color: element.color,
         backgroundColor: element.backgroundColor,
         borderRadius: element.borderRadius + 'px',
-        textAlign: element.align
+        '--btn-align': element.align === 'left' ? 'flex-start' : element.align === 'right' ? 'flex-end' : 'center'
       }"
     >
       {{ element.content }}
@@ -136,8 +136,8 @@ const { onMouseDown } = useDragMove(() => props.element.id)
   &__button {
     display: flex;
     align-items: center;
-    justify-content: center;
     font-weight: 600;
+    justify-content: var(--btn-align, center);
   }
 
   &__image {
