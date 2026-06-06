@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useEditorStore } from '@/stores/editor'
 
 const editor = useEditorStore()
-
-const selectedElement = computed(() => editor.selectedElement)
 
 const typeLabels: Record<string, string> = {
   heading: 'Heading',
@@ -17,15 +14,15 @@ const typeLabels: Record<string, string> = {
 
 <template>
   <aside class="properties-panel">
-    <template v-if="selectedElement">
+    <template v-if="editor.selectedElement">
       <div class="properties-panel__header">
         <h2 class="properties-panel__title">
-          {{ typeLabels[selectedElement.type] || selectedElement.type }} Properties
+          {{ typeLabels[editor.selectedElement.type] || editor.selectedElement.type }} Properties
         </h2>
         <button
           class="properties-panel__delete"
           title="Delete element"
-          @click="editor.removeElement(selectedElement!.id)"
+          @click="editor.removeElement(editor.selectedElement!.id)"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="3 6 5 6 21 6" />

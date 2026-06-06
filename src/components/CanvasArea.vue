@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useEditorStore } from '@/stores/editor'
+import CanvasElement from '@/components/CanvasElement.vue'
 import type { ElementType, Position } from '@/types'
 
 const editor = useEditorStore()
@@ -13,6 +14,14 @@ function onDragOver(event: DragEvent): void {
   }
 }
 
+const ELEMENT_DEFAULTS_SIZE: Record<string, { width: number; height: number }> = {
+  heading: { width: 240, height: 40 },
+  text: { width: 260, height: 60 },
+  button: { width: 140, height: 44 },
+  image: { width: 200, height: 150 },
+  divider: { width: 260, height: 4 }
+}
+
 function onDrop(event: DragEvent): void {
   event.preventDefault()
   if (!event.dataTransfer || !canvasRef.value) return
@@ -21,9 +30,17 @@ function onDrop(event: DragEvent): void {
   if (!type) return
 
   const rect = canvasRef.value.getBoundingClientRect()
+  const elSize = ELEMENT_DEFAULTS_SIZE[type] ?? { width: 100, height: 40 }
+
+  // Center element on cursor, then clamp within canvas bounds
+  const rawX = event.clientX - rect.left - elSize.width / 2
+  const rawY = event.clientY - rect.top - elSize.height / 2
+  const maxX = editor.canvas.width - elSize.width
+  const maxY = editor.canvas.height - elSize.height
+
   const position: Position = {
-    x: event.clientX - rect.left,
-    y: event.clientY - rect.top
+    x: Math.max(0, Math.min(rawX, maxX)),
+    y: Math.max(0, Math.min(rawY, maxY))
   }
 
   editor.addElement(type, position)
@@ -48,6 +65,11 @@ function onCanvasClick(): void {
       @drop="onDrop"
       @click.self="onCanvasClick"
     >
+      <CanvasElement
+        v-for="el in editor.sortedElements"
+        :key="el.id"
+        :element="el"
+      />
       <p v-if="editor.elements.length === 0" class="canvas-area__placeholder">
         Drag elements here
       </p>
