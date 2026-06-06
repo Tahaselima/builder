@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useEditorStore } from '@/stores/editor'
 import { useDragMove } from '@/composables/useDragMove'
 import { useResize } from '@/composables/useResize'
@@ -13,15 +13,54 @@ const props = defineProps<{
 const editor = useEditorStore()
 
 const isSelected = computed(() => editor.selectedElementId === props.element.id)
+const isEditing = ref(false)
+const editRef = ref<HTMLElement | null>(null)
 
 const { onMouseDown } = useDragMove(() => props.element.id)
 const { onMouseDown: onResizeStart } = useResize(() => props.element.id)
+
+function isTextType(): boolean {
+  return props.element.type === 'heading' || props.element.type === 'text'
+}
+
+function onDoubleClick(event: MouseEvent): void {
+  if (!isTextType()) return
+  event.stopPropagation()
+  isEditing.value = true
+
+  nextTick(() => {
+    if (editRef.value) {
+      editRef.value.focus()
+      // Select all text
+      const range = document.createRange()
+      range.selectNodeContents(editRef.value)
+      const sel = window.getSelection()
+      sel?.removeAllRanges()
+      sel?.addRange(range)
+    }
+  })
+}
+
+function finishEditing(): void {
+  if (!isEditing.value) return
+  isEditing.value = false
+
+  if (editRef.value) {
+    const newContent = editRef.value.textContent?.trim() ?? ''
+    if (newContent && newContent !== (props.element as { content: string }).content) {
+      editor.updateElement(props.element.id, { content: newContent })
+    }
+  }
+}
 </script>
 
 <template>
   <div
     class="canvas-element"
-    :class="{ 'canvas-element--selected': isSelected }"
+    :class="{
+      'canvas-element--selected': isSelected,
+      'canvas-element--editing': isEditing
+    }"
     :style="{
       left: element.position.x + 'px',
       top: element.position.y + 'px',
@@ -29,17 +68,22 @@ const { onMouseDown: onResizeStart } = useResize(() => props.element.id)
       height: element.size.height + 'px',
       zIndex: element.zIndex
     }"
-    @mousedown="onMouseDown"
+    @mousedown="isEditing ? undefined : onMouseDown($event)"
+    @dblclick="onDoubleClick"
   >
     <!-- Heading -->
     <div
       v-if="element.type === 'heading'"
+      ref="editRef"
       class="canvas-element__content canvas-element__heading"
+      :contenteditable="isEditing"
       :style="{
         fontSize: element.fontSize + 'px',
         color: element.color,
         textAlign: element.align
       }"
+      @blur="finishEditing"
+      @keydown.enter.prevent="finishEditing"
     >
       {{ element.content }}
     </div>
@@ -47,12 +91,16 @@ const { onMouseDown: onResizeStart } = useResize(() => props.element.id)
     <!-- Text -->
     <div
       v-else-if="element.type === 'text'"
+      ref="editRef"
       class="canvas-element__content canvas-element__text"
+      :contenteditable="isEditing"
       :style="{
         fontSize: element.fontSize + 'px',
         color: element.color,
         textAlign: element.align
       }"
+      @blur="finishEditing"
+      @keydown.enter.prevent="finishEditing"
     >
       {{ element.content }}
     </div>
@@ -96,7 +144,15 @@ const { onMouseDown: onResizeStart } = useResize(() => props.element.id)
     />
 
     <!-- Resize Handles -->
-    <template v-if="isSelected">
+    <template v-if="isSelected && !isEditing">
+      <button
+        class="canvas-element__delete"
+        title="Delete"
+        @mousedown.stop.prevent
+        @click.stop="editor.removeElement(element.id)"
+      >
+        <BaseIcon name="trash" :size="11" />
+      </button>
       <div class="resize-handle resize-handle--tl" @mousedown.stop.prevent="onResizeStart($event, 'tl')" />
       <div class="resize-handle resize-handle--tr" @mousedown.stop.prevent="onResizeStart($event, 'tr')" />
       <div class="resize-handle resize-handle--bl" @mousedown.stop.prevent="onResizeStart($event, 'bl')" />
@@ -119,7 +175,14 @@ const { onMouseDown: onResizeStart } = useResize(() => props.element.id)
     outline-offset: 0px;
   }
 
-  &:hover:not(&--selected) {
+  &--editing {
+    outline: 2px solid $color-primary;
+    outline-offset: 0px;
+    cursor: text;
+    user-select: text;
+  }
+
+  &:hover:not(&--selected):not(&--editing) {
     outline: 1px dashed color.adjust($color-border, $lightness: 5%);
     outline-offset: 0px;
   }
@@ -130,17 +193,29 @@ const { onMouseDown: onResizeStart } = useResize(() => props.element.id)
     pointer-events: none;
   }
 
+  &--editing &__content {
+    pointer-events: auto;
+  }
+
   &__heading {
     font-weight: 700;
     overflow: hidden;
     display: block;
     line-height: 1.2;
+
+    &:focus {
+      outline: none;
+    }
   }
 
   &__text {
     overflow: hidden;
     display: block;
     line-height: 1.4;
+
+    &:focus {
+      outline: none;
+    }
   }
 
   &__button {
@@ -177,6 +252,31 @@ const { onMouseDown: onResizeStart } = useResize(() => props.element.id)
     position: relative;
     top: 50%;
     transform: translateY(-50%);
+  }
+
+  &__delete {
+    position: absolute;
+    top: -30px;
+    right: -8px;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: $color-surface;
+    color: $color-text-secondary;
+    z-index: 11;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: all 0.15s ease;
+
+    &:hover {
+      opacity: 1;
+      color: $color-danger;
+      transform: scale(1.2);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
   }
 }
 

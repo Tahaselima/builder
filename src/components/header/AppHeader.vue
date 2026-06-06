@@ -3,9 +3,11 @@ import { ref } from 'vue'
 import { useEditorStore } from '@/stores/editor'
 import BaseIcon from '@/components/icon/BaseIcon.vue'
 import ShortcutsModal from './ShortcutsModal.vue'
+import SettingsModal from './SettingsModal.vue'
 
 const editor = useEditorStore()
 const showShortcuts = ref(false)
+const showSettings = ref(false)
 </script>
 
 <template>
@@ -34,15 +36,16 @@ const showShortcuts = ref(false)
         </button>
       </div>
 
-      <div class="app-header__canvas-color">
-        <label class="app-header__color-label" for="canvas-bg">Canvas BG</label>
-        <input
-          id="canvas-bg"
-          type="color"
-          :value="editor.canvas.backgroundColor"
-          @input="editor.canvas.backgroundColor = ($event.target as HTMLInputElement).value"
-        />
-      </div>
+      <button
+        class="btn btn--icon"
+        title="Canvas Settings"
+        @click="showSettings = true"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
 
       <button
         class="btn btn--icon"
@@ -58,6 +61,11 @@ const showShortcuts = ref(false)
       </button>
     </div>
   </header>
+
+  <SettingsModal
+    v-if="showSettings"
+    @close="showSettings = false"
+  />
 
   <ShortcutsModal
     v-if="showShortcuts"
@@ -93,17 +101,6 @@ const showShortcuts = ref(false)
   &__history {
     display: flex;
     gap: 4px;
-  }
-
-  &__canvas-color {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  &__color-label {
-    font-size: 12px;
-    color: $color-text-secondary;
   }
 }
 

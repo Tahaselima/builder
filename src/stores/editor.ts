@@ -17,7 +17,10 @@ import type {
 const DEFAULT_CANVAS: CanvasConfig = {
   width: 400,
   height: 500,
-  backgroundColor: '#ffffff'
+  backgroundColor: '#ffffff',
+  borderRadius: 8,
+  boxShadow: 4,
+  boxShadowOpacity: 0.08
 }
 
 function createElementDefaults(type: ElementType, canvas: CanvasConfig): CanvasElement {
@@ -203,6 +206,7 @@ export const useEditorStore = defineStore('editor', () => {
     elements.value = []
     selectedElementId.value = null
     nextZIndex.value = 1
+    canvas.value = { ...DEFAULT_CANVAS }
     history.value = [JSON.stringify([])]
     historyIndex.value = 0
   }

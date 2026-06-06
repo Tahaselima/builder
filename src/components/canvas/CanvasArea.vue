@@ -59,7 +59,9 @@ function onCanvasClick(): void {
       :style="{
         width: editor.canvas.width + 'px',
         height: editor.canvas.height + 'px',
-        backgroundColor: editor.canvas.backgroundColor
+        backgroundColor: editor.canvas.backgroundColor,
+        borderRadius: (editor.canvas.borderRadius ?? 8) + 'px',
+        boxShadow: '0 ' + (editor.canvas.boxShadow ?? 4) + 'px ' + ((editor.canvas.boxShadow ?? 4) * 6) + 'px rgba(0, 0, 0, ' + (editor.canvas.boxShadowOpacity ?? 0.08) + ')'
       }"
       @dragover="onDragOver"
       @drop="onDrop"
@@ -93,10 +95,8 @@ function onCanvasClick(): void {
   &__canvas {
     position: relative;
     border: 2px dashed $color-border;
-    border-radius: 8px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
     flex-shrink: 0;
-    transition: border-color 0.15s ease;
+    transition: border-color 0.15s ease, border-radius 0.15s ease, box-shadow 0.15s ease;
 
     &:hover {
       border-color: color.adjust($color-primary, $lightness: 30%);
