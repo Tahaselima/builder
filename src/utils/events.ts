@@ -5,4 +5,3 @@ export function inputValue(event: Event): string {
 export function inputNumber(event: Event): number {
   return Number((event.target as HTMLInputElement).value)
 }
-test
