@@ -2,6 +2,8 @@
 
 Görsel sürükle-bırak canvas üzerinde heading, text, button, image ve divider elementleri ile şablon oluşturmanızı sağlayan bir web uygulaması. Şablonlar JSON olarak dışa/içe aktarılabilir, sunucuda saklanabilir veya AI ile üretilebilir.
 
+**🔗 Canlı Demo:** [templatebuildermonorepo.netlify.app](https://templatebuildermonorepo.netlify.app/)
+
 ## Kurulum & Çalıştırma
 
 ### Gereksinimler
@@ -102,13 +104,41 @@ Beş element tipi (`heading`, `text`, `button`, `image`, `divider`) TypeScript d
 
 Element özellikleri `propertyConfig.ts` ile bildirimsel olarak tanımlanır. Yeni bir alan eklemek için sadece konfigürasyonu güncellemek yeterlidir — UI bileşenleri otomatik render edilir.
 
+### Deployment: Netlify
+
+Proje Netlify'a deploy edilmek üzere tasarlanmıştır:
+
+- **Frontend** → Statik dosya olarak `dist/` klasöründen sunulur
+- **API** → Express yerine Netlify Functions (serverless) kullanılır (`netlify/functions/api-templates.ts`)
+- **Storage** → Netlify Function in-memory storage kullanır. API çağrısı başarısız olursa client-side localStorage'a fallback yapılır
+
+```
+Kullanıcı → /api/templates
+         → netlify.toml redirect
+         → /.netlify/functions/api-templates (serverless)
+         → In-memory store (sıcakken kalıcı)
+         → API çöküşünde → localStorage fallback
+```
+
+**API → localStorage fallback stratejisi:**
+
+| İşlem | API başarılı | API başarısız |
+|-------|-------------|---------------|
+| `fetchAll()` | API'den yükle | localStorage cache'den yükle |
+| `save()` | API'ye kaydet | Sadece localStorage'a kaydet |
+| `remove()` | API'den sil | Sadece localStorage'dan sil |
+
+> **Not:** Local storage sadece API unavailable olduğunda devreye girer. Normal şartlarda tüm veri akışı API üzerinden geçer.
+
+`netlify.toml` yapılandırması tüm redirect ve build ayarlarını içerir, ek config gerektirmez.
+
 ---
 
 ## Varsayımlar
 
 1. **Kullanıcı sayısı:** Tek kullanıcı, local development aracı olarak tasarlanmıştır. Authentication yoktur.
 2. **Canvas boyutu:** Sabit boyutlu canvas (varsayılan 400×500px). Responsive canvas davranışı beklenmez.
-3. **Veri saklama:** Sunucu dosya tabanlı JSON storage kullanır. Concurrent yazma durumunda veri kaybı olabilir — küçük ölçekte kabul edilebilir.
+3. **Veri saklama:** Local development'ta Express + file-based JSON. Netlify'da serverless function + in-memory storage, API çöküşünde localStorage fallback.
 4. **AI üretimi:** OpenAI API key localStorage'da saklanır. Tarayıcıdan doğrudan OpenAI API'ye istek atılır — production'da server-side proxy kullanılmalıdır.
 5. **Element sayısı:** Canvas üzerinde makul sayıda element (10-50) beklenir. Performans optimizasyonu (virtual scroll, lazy rendering) yapılmamıştır.
 6. **Tarayıcı desteği:** Modern evergreen tarayıcılar hedeflenmiştir (Chrome, Firefox, Safari, Edge).
