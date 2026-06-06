@@ -127,6 +127,7 @@ Element özellikleri `propertyConfig.ts` ile bildirimsel olarak tanımlanır. Ye
 
 ### Orta Vadeli İyileştirmeler
 
+- **Backend modernizasyonu** — Express.js yerine [Fastify](https://fastify.dev/), [Hono](https://hono.dev/) veya [Elysia](https://elysiajs.com/) gibi daha hafif ve performanslı alternatiflere geçiş düşünülmeli. Projenin backend ihtiyacı sadece 3 REST endpoint (`GET/POST/DELETE /api/templates`) olduğundan, Express'in getirdiği özellik zenginliği gereksiz yük oluşturuyor. Hafif bir framework ile daha küçük bundle, daha iyi TypeScript desteği ve daha hızlı cold-start sağlanabilir. Eğer proje büyümeyecekse ve mevcut ihtiyaçlar fazlalaşmayacaksa, [Nietzsche](https://github.com/nichenqin/nietzsche) veya doğrudan Node.js `http` modülü bile yeterli olabilir.
 - **Undo/redo iyileştirmesi** — Immutable.js veya structural sharing ile tam JSON serialization yerine diff-based snapshot.
 - **AI proxy endpoint** — API key client'ta değil, server-side environment variable olarak tutulmalı.
 - **Canvas export** — PNG/PDF export desteği (html2canvas veya benzeri).
