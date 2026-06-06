@@ -10,7 +10,7 @@ defineProps<{
   <!-- Heading -->
   <div
     v-if="element.type === 'heading'"
-    class="element-renderer"
+    class="element-renderer element-renderer--text"
     :style="{
       left: element.position.x + 'px',
       top: element.position.y + 'px',
@@ -30,7 +30,7 @@ defineProps<{
   <!-- Text -->
   <div
     v-else-if="element.type === 'text'"
-    class="element-renderer"
+    class="element-renderer element-renderer--text"
     :style="{
       left: element.position.x + 'px',
       top: element.position.y + 'px',
@@ -122,6 +122,10 @@ defineProps<{
   word-break: break-word;
   text-decoration: none;
   cursor: default;
+
+  &--text {
+    display: block;
+  }
 
   &--divider {
     display: flex;
