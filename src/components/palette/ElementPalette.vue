@@ -5,35 +5,15 @@ import type { ElementType } from '@/types'
 interface PaletteEntry {
   type: ElementType
   label: string
-  icon: string
+  iconName: string
 }
 
 const elements: PaletteEntry[] = [
-  {
-    type: 'heading',
-    label: 'Heading',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16"/><path d="M18 4v16"/><path d="M6 12h12"/></svg>'
-  },
-  {
-    type: 'text',
-    label: 'Text',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>'
-  },
-  {
-    type: 'button',
-    label: 'Button',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="8" rx="4"/></svg>'
-  },
-  {
-    type: 'image',
-    label: 'Image',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>'
-  },
-  {
-    type: 'divider',
-    label: 'Divider',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h18"/></svg>'
-  }
+  { type: 'heading', label: 'Heading', iconName: 'heading' },
+  { type: 'text', label: 'Text', iconName: 'text' },
+  { type: 'button', label: 'Button', iconName: 'button' },
+  { type: 'image', label: 'Image', iconName: 'image' },
+  { type: 'divider', label: 'Divider', iconName: 'divider' }
 ]
 </script>
 
@@ -47,7 +27,7 @@ const elements: PaletteEntry[] = [
           :key="entry.type"
           :type="entry.type"
           :label="entry.label"
-          :icon="entry.icon"
+          :icon-name="entry.iconName"
         />
       </div>
     </div>

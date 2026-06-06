@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useEditorStore } from '@/stores/editor'
-import CanvasElement from '@/components/CanvasElement.vue'
+import CanvasElement from '@/components/canvas/CanvasElement.vue'
 import type { ElementType, Position } from '@/types'
 
 const editor = useEditorStore()

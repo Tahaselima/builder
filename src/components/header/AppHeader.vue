@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useEditorStore } from '@/stores/editor'
+import BaseIcon from '@/components/icon/BaseIcon.vue'
 
 const editor = useEditorStore()
 </script>
@@ -18,10 +19,7 @@ const editor = useEditorStore()
           title="Undo (Ctrl+Z)"
           @click="editor.undo()"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="1 4 1 10 7 10" />
-            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-          </svg>
+          <BaseIcon name="undo" />
         </button>
         <button
           class="btn btn--icon"
@@ -29,10 +27,7 @@ const editor = useEditorStore()
           title="Redo (Ctrl+Y)"
           @click="editor.redo()"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10" />
-            <path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10" />
-          </svg>
+          <BaseIcon name="redo" />
         </button>
       </div>
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useEditorStore } from '@/stores/editor'
+import BaseIcon from '@/components/icon/BaseIcon.vue'
 
 const editor = useEditorStore()
 
@@ -24,10 +25,7 @@ const typeLabels: Record<string, string> = {
           title="Delete element"
           @click="editor.removeElement(editor.selectedElement!.id)"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="3 6 5 6 21 6" />
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-          </svg>
+          <BaseIcon name="trash" :size="16" />
         </button>
       </div>
 
@@ -37,11 +35,7 @@ const typeLabels: Record<string, string> = {
     </template>
 
     <div v-else class="properties-panel__empty">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.3">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-        <line x1="12" y1="17" x2="12.01" y2="17" />
-      </svg>
+      <BaseIcon name="help" :size="40" :stroke-width="1.5" />
       <p>Select an element on the canvas to edit its properties.</p>
     </div>
   </aside>
@@ -112,6 +106,10 @@ const typeLabels: Record<string, string> = {
       font-size: 13px;
       color: $color-text-secondary;
       line-height: 1.5;
+    }
+
+    svg {
+      opacity: 0.3;
     }
   }
 }

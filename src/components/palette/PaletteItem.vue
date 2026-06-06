@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import type { ElementType } from '@/types'
+import BaseIcon from '@/components/icon/BaseIcon.vue'
 
 defineProps<{
   type: ElementType
   label: string
-  icon: string
+  iconName: string
 }>()
 
 function onDragStart(event: DragEvent, type: ElementType): void {
@@ -20,7 +21,9 @@ function onDragStart(event: DragEvent, type: ElementType): void {
     draggable="true"
     @dragstart="onDragStart($event, type)"
   >
-    <span class="palette-item__icon" v-html="icon" />
+    <span class="palette-item__icon">
+      <BaseIcon :name="iconName" />
+    </span>
     <span class="palette-item__label">{{ label }}</span>
   </div>
 </template>
@@ -57,11 +60,6 @@ function onDragStart(event: DragEvent, type: ElementType): void {
     width: 20px;
     height: 20px;
     color: $color-primary;
-
-    :deep(svg) {
-      width: 18px;
-      height: 18px;
-    }
   }
 
   &__label {
