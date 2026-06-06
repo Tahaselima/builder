@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { PaletteItem, SaveDialog, NewDialog, TemplateList } from './'
 import { useEditorStore, useTemplatesStore } from '@/stores'
 import { ELEMENT_TYPE_LABELS } from '@/utils'
@@ -11,6 +11,8 @@ const templates = useTemplatesStore()
 const showSaveDialog = ref(false)
 const showNewDialog = ref(false)
 
+const isEditingSaved = computed(() => editor.loadedTemplateId !== null)
+
 const elements: { type: ElementType; label: string; iconName: string }[] = [
   { type: 'heading', label: ELEMENT_TYPE_LABELS.heading, iconName: 'heading' },
   { type: 'text', label: ELEMENT_TYPE_LABELS.text, iconName: 'text' },
@@ -21,6 +23,10 @@ const elements: { type: ElementType; label: string; iconName: string }[] = [
 
 async function onSave(name: string): Promise<void> {
   await templates.saveCurrentAsTemplate(name)
+}
+
+async function onSaveExisting(): Promise<void> {
+  await templates.updateExisting()
 }
 
 function onExport(): void {
@@ -51,7 +57,13 @@ function onExport(): void {
       <h2 class="element-palette__heading">Actions</h2>
       <div class="element-palette__action-buttons">
         <button class="action-btn action-btn--new" @click="showNewDialog = true">+ New</button>
-        <button class="action-btn action-btn--save" @click="showSaveDialog = true">Save</button>
+
+        <template v-if="isEditingSaved">
+          <button class="action-btn action-btn--save" @click="onSaveExisting">Save</button>
+          <button class="action-btn action-btn--save" @click="showSaveDialog = true">Save As</button>
+        </template>
+        <button v-else class="action-btn action-btn--save" @click="showSaveDialog = true">Save</button>
+
         <button class="action-btn action-btn--export" @click="onExport">Export JSON</button>
       </div>
     </div>

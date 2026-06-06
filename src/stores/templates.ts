@@ -75,7 +75,36 @@ export const useTemplatesStore = defineStore('templates', () => {
     const template = templates.value.find((t) => t.id === id)
     if (!template) return
     const editor = useEditorStore()
-    editor.loadElements([...template.elements], { ...template.canvas })
+    editor.loadElements([...template.elements], { ...template.canvas }, id)
+  }
+
+  async function updateExisting(name?: string): Promise<Template | null> {
+    const editor = useEditorStore()
+    const id = editor.loadedTemplateId
+    if (!id) return null
+
+    const index = templates.value.findIndex((t) => t.id === id)
+    if (index === -1) return null
+
+    const now = new Date().toISOString()
+    const updated: Template = {
+      ...templates.value[index],
+      elements: [...editor.elements],
+      canvas: { ...editor.canvas },
+      updatedAt: now,
+      ...(name ? { name } : {})
+    }
+
+    try {
+      await saveTemplate(updated)
+      templates.value[index] = updated
+      return updated
+    } catch (e) {
+      error.value = getErrorMessage(e)
+      templates.value[index] = updated
+      saveToLocalStorage(templates.value)
+      return updated
+    }
   }
 
   async function remove(id: string): Promise<boolean> {
@@ -150,6 +179,7 @@ export const useTemplatesStore = defineStore('templates', () => {
     error,
     fetchAll,
     saveCurrentAsTemplate,
+    updateExisting,
     loadToEditor,
     remove,
     exportAsJson,

@@ -19,6 +19,7 @@ export const useEditorStore = defineStore('editor', () => {
   const selectedElementId = ref<string | null>(null)
   const canvas = ref<CanvasConfig>({ ...DEFAULT_CANVAS })
   const nextZIndex = ref(1)
+  const loadedTemplateId = ref<string | null>(null)
 
   // Grid snap
   const gridEnabled = ref(false)
@@ -205,6 +206,7 @@ export const useEditorStore = defineStore('editor', () => {
     selectedElementId.value = null
     nextZIndex.value = 1
     canvas.value = { ...DEFAULT_CANVAS }
+    loadedTemplateId.value = null
     history.value = [JSON.stringify([])]
     historyIndex.value = 0
   }
@@ -214,10 +216,11 @@ export const useEditorStore = defineStore('editor', () => {
     pushHistory()
   }
 
-  function loadElements(newElements: CanvasElement[], newCanvas: CanvasConfig): void {
+  function loadElements(newElements: CanvasElement[], newCanvas: CanvasConfig, templateId?: string): void {
     elements.value = [...newElements]
     canvas.value = { ...newCanvas }
     selectedElementId.value = null
+    loadedTemplateId.value = templateId ?? null
     nextZIndex.value = Math.max(0, ...newElements.map((el) => el.zIndex)) + 1
     history.value = [JSON.stringify(newElements)]
     historyIndex.value = 0
@@ -232,6 +235,7 @@ export const useEditorStore = defineStore('editor', () => {
     gridEnabled,
     gridSize,
     clipboard,
+    loadedTemplateId,
     // Getters
     selectedElement,
     sortedElements,
