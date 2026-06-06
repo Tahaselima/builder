@@ -1,6 +1,7 @@
 node_modules
 dist
 data/templates.json
+.netlify
 .DS_Store
 *.local
 PLAN.md
