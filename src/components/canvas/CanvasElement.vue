@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useEditorStore } from '@/stores/editor'
 import { useDragMove } from '@/composables/useDragMove'
+import { useResize } from '@/composables/useResize'
 import BaseIcon from '@/components/icon/BaseIcon.vue'
 import type { CanvasElement as CanvasElementType } from '@/types'
 
@@ -14,6 +15,7 @@ const editor = useEditorStore()
 const isSelected = computed(() => editor.selectedElementId === props.element.id)
 
 const { onMouseDown } = useDragMove(() => props.element.id)
+const { onMouseDown: onResizeStart } = useResize(() => props.element.id)
 </script>
 
 <template>
@@ -92,6 +94,14 @@ const { onMouseDown } = useDragMove(() => props.element.id)
         height: element.thickness + 'px'
       }"
     />
+
+    <!-- Resize Handles -->
+    <template v-if="isSelected">
+      <div class="resize-handle resize-handle--tl" @mousedown.stop.prevent="onResizeStart($event, 'tl')" />
+      <div class="resize-handle resize-handle--tr" @mousedown.stop.prevent="onResizeStart($event, 'tr')" />
+      <div class="resize-handle resize-handle--bl" @mousedown.stop.prevent="onResizeStart($event, 'bl')" />
+      <div class="resize-handle resize-handle--br" @mousedown.stop.prevent="onResizeStart($event, 'br')" />
+    </template>
   </div>
 </template>
 
@@ -167,6 +177,40 @@ const { onMouseDown } = useDragMove(() => props.element.id)
     position: relative;
     top: 50%;
     transform: translateY(-50%);
+  }
+}
+
+.resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: $color-surface;
+  border: 2px solid $color-selected;
+  border-radius: 2px;
+  z-index: 10;
+
+  &--tl {
+    top: -5px;
+    left: -5px;
+    cursor: nw-resize;
+  }
+
+  &--tr {
+    top: -5px;
+    right: -5px;
+    cursor: ne-resize;
+  }
+
+  &--bl {
+    bottom: -5px;
+    left: -5px;
+    cursor: sw-resize;
+  }
+
+  &--br {
+    bottom: -5px;
+    right: -5px;
+    cursor: se-resize;
   }
 }
 </style>

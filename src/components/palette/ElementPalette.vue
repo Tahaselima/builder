@@ -1,6 +1,16 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import PaletteItem from './PaletteItem.vue'
+import SaveDialog from './SaveDialog.vue'
+import TemplateList from './TemplateList.vue'
+import { useEditorStore } from '@/stores/editor'
+import { useTemplatesStore } from '@/stores/templates'
 import type { ElementType } from '@/types'
+
+const editor = useEditorStore()
+const templates = useTemplatesStore()
+
+const showSaveDialog = ref(false)
 
 interface PaletteEntry {
   type: ElementType
@@ -15,6 +25,18 @@ const elements: PaletteEntry[] = [
   { type: 'image', label: 'Image', iconName: 'image' },
   { type: 'divider', label: 'Divider', iconName: 'divider' }
 ]
+
+function onNew(): void {
+  editor.clearCanvas()
+}
+
+async function onSave(name: string): Promise<void> {
+  await templates.saveCurrentAsTemplate(name)
+}
+
+function onExport(): void {
+  templates.exportCurrentAsJson()
+}
 </script>
 
 <template>
@@ -32,15 +54,25 @@ const elements: PaletteEntry[] = [
       </div>
     </div>
 
+    <div class="element-palette__section">
+      <TemplateList />
+    </div>
+
     <div class="element-palette__section element-palette__actions">
       <h2 class="element-palette__heading">Actions</h2>
       <div class="element-palette__action-buttons">
-        <button class="action-btn action-btn--new">+ New</button>
-        <button class="action-btn action-btn--save">Save</button>
-        <button class="action-btn action-btn--export">Export JSON</button>
+        <button class="action-btn action-btn--new" @click="onNew">+ New</button>
+        <button class="action-btn action-btn--save" @click="showSaveDialog = true">Save</button>
+        <button class="action-btn action-btn--export" @click="onExport">Export JSON</button>
       </div>
     </div>
   </aside>
+
+  <SaveDialog
+    v-if="showSaveDialog"
+    @save="onSave"
+    @close="showSaveDialog = false"
+  />
 </template>
 
 <style scoped lang="scss">
@@ -53,7 +85,7 @@ const elements: PaletteEntry[] = [
   padding: 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   overflow-y: auto;
   flex-shrink: 0;
 
