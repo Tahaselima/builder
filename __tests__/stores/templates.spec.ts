@@ -5,6 +5,7 @@ import { beforeEach, describe, it, expect } from '@jest/globals'
 
 describe('Templates Store', () => {
   beforeEach(() => {
+    localStorage.clear()
     setActivePinia(createPinia())
   })
 

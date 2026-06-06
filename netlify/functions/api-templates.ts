@@ -1,5 +1,4 @@
-import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions'
-import { getStore } from '@netlify/blobs'
+import type { Handler } from '@netlify/functions'
 
 type Template = {
   id: string
@@ -10,28 +9,8 @@ type Template = {
   updatedAt: string
 }
 
-const STORE_NAME = 'templates'
-const STORE_KEY = 'all'
-
-function getTemplateStore(context: HandlerContext) {
-  return getStore({ name: STORE_NAME, consistency: 'strong' })
-}
-
-async function loadAll(context: HandlerContext): Promise<Template[]> {
-  const store = getTemplateStore(context)
-  const raw = await store.get(STORE_KEY)
-  if (!raw) return []
-  try {
-    return JSON.parse(raw) as Template[]
-  } catch {
-    return []
-  }
-}
-
-async function saveAll(templates: Template[], context: HandlerContext): Promise<void> {
-  const store = getTemplateStore(context)
-  await store.set(STORE_KEY, JSON.stringify(templates))
-}
+// In-memory store — persists while function instance is warm
+let templates: Template[] = []
 
 function isValidTemplate(body: unknown): body is Template {
   if (!body || typeof body !== 'object') return false
@@ -53,14 +32,13 @@ function jsonResponse(statusCode: number, body: unknown) {
   }
 }
 
-export const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
+export const handler: Handler = async (event) => {
   const method = event.httpMethod
   const path = event.path.replace('/api/templates', '').replace('/.netlify/functions/api-templates', '')
 
   try {
     // GET /api/templates — List all
     if (method === 'GET' && (path === '' || path === '/')) {
-      const templates = await loadAll(context)
       return jsonResponse(200, templates)
     }
 
@@ -77,7 +55,6 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
         return jsonResponse(400, { success: false, error: 'Invalid template payload' })
       }
 
-      const templates = await loadAll(context)
       const existingIndex = templates.findIndex((t) => t.id === body.id)
       const now = new Date().toISOString()
 
@@ -87,7 +64,6 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
         templates.push({ ...body, createdAt: now, updatedAt: now })
       }
 
-      await saveAll(templates, context)
       return jsonResponse(200, body)
     }
 
@@ -98,14 +74,13 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
         return jsonResponse(400, { success: false, error: 'Missing template id' })
       }
 
-      const templates = await loadAll(context)
-      const filtered = templates.filter((t) => t.id !== id)
+      const before = templates.length
+      templates = templates.filter((t) => t.id !== id)
 
-      if (filtered.length === templates.length) {
+      if (templates.length === before) {
         return jsonResponse(404, { success: false, error: 'Template not found' })
       }
 
-      await saveAll(filtered, context)
       return { statusCode: 204, body: '' }
     }
 

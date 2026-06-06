@@ -1,25 +1,48 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useEditorStore } from './'
 import { fetchTemplates, saveTemplate, deleteTemplate, generateId, downloadJson, validateTemplate } from '@/utils'
 import type { Template } from '@/types'
+
+const LOCAL_STORAGE_KEY = 'builder_templates'
 
 function getErrorMessage(e: unknown): string {
   return e instanceof Error ? e.message : String(e)
 }
 
+function loadFromLocalStorage(): Template[] {
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+function saveToLocalStorage(data: Template[]): void {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data))
+  } catch {
+    // localStorage quota exceeded — silently ignore
+  }
+}
+
 export const useTemplatesStore = defineStore('templates', () => {
-  const templates = ref<Template[]>([])
+  const templates = ref<Template[]>(loadFromLocalStorage())
   const isLoading = ref(false)
   const error = ref<string | null>(null)
+
+  // Sync to localStorage on every change
+  watch(templates, (value) => saveToLocalStorage(value), { deep: true })
 
   async function fetchAll(): Promise<void> {
     isLoading.value = true
     error.value = null
     try {
-      templates.value = await fetchTemplates()
-    } catch (e) {
-      error.value = getErrorMessage(e)
+      const remote = await fetchTemplates()
+      templates.value = remote
+    } catch {
+      // API unavailable — keep localStorage data, don't overwrite
     } finally {
       isLoading.value = false
     }
@@ -42,9 +65,10 @@ export const useTemplatesStore = defineStore('templates', () => {
       const saved = await saveTemplate(template)
       templates.value.push(saved)
       return saved
-    } catch (e) {
-      error.value = getErrorMessage(e)
-      return null
+    } catch {
+      // API unavailable — save locally only
+      templates.value.push(template)
+      return template
     }
   }
 
@@ -60,9 +84,10 @@ export const useTemplatesStore = defineStore('templates', () => {
       await deleteTemplate(id)
       templates.value = templates.value.filter((t) => t.id !== id)
       return true
-    } catch (e) {
-      error.value = getErrorMessage(e)
-      return false
+    } catch {
+      // API unavailable — remove locally only
+      templates.value = templates.value.filter((t) => t.id !== id)
+      return true
     }
   }
 

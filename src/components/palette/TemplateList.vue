@@ -46,7 +46,7 @@ function formatDate(iso: string): string {
             title="Export JSON"
             @click.stop="templates.exportAsJson(tpl.id)"
           >
-            <BaseIcon name="image" :size="14" />
+            <BaseIcon name="download" :size="14" />
           </button>
           <button
             class="template-item__btn template-item__btn--delete"
