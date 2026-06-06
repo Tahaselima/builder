@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useEditorStore } from '@/stores/editor'
+import { useDragMove } from '@/composables/useDragMove'
 import BaseIcon from '@/components/icon/BaseIcon.vue'
 import type { CanvasElement as CanvasElementType } from '@/types'
 
@@ -12,10 +13,7 @@ const editor = useEditorStore()
 
 const isSelected = computed(() => editor.selectedElementId === props.element.id)
 
-function onClick(event: MouseEvent): void {
-  event.stopPropagation()
-  editor.selectElement(props.element.id)
-}
+const { onMouseDown } = useDragMove(() => props.element.id)
 </script>
 
 <template>
@@ -29,13 +27,12 @@ function onClick(event: MouseEvent): void {
       height: element.size.height + 'px',
       zIndex: element.zIndex
     }"
-    @mousedown.stop="onClick"
-    @click.stop="onClick"
+    @mousedown="onMouseDown"
   >
     <!-- Heading -->
     <div
       v-if="element.type === 'heading'"
-      class="canvas-element__heading"
+      class="canvas-element__content canvas-element__heading"
       :style="{
         fontSize: element.fontSize + 'px',
         color: element.color,
@@ -48,7 +45,7 @@ function onClick(event: MouseEvent): void {
     <!-- Text -->
     <div
       v-else-if="element.type === 'text'"
-      class="canvas-element__text"
+      class="canvas-element__content canvas-element__text"
       :style="{
         fontSize: element.fontSize + 'px',
         color: element.color,
@@ -61,19 +58,20 @@ function onClick(event: MouseEvent): void {
     <!-- Button -->
     <div
       v-else-if="element.type === 'button'"
-      class="canvas-element__button"
+      class="canvas-element__content canvas-element__button"
       :style="{
         fontSize: element.fontSize + 'px',
         color: element.color,
         backgroundColor: element.backgroundColor,
-        borderRadius: element.borderRadius + 'px'
+        borderRadius: element.borderRadius + 'px',
+        textAlign: element.align
       }"
     >
       {{ element.content }}
     </div>
 
     <!-- Image -->
-    <div v-else-if="element.type === 'image'" class="canvas-element__image">
+    <div v-else-if="element.type === 'image'" class="canvas-element__content canvas-element__image">
       <img
         v-if="element.src"
         :src="element.src"
@@ -88,9 +86,10 @@ function onClick(event: MouseEvent): void {
     <!-- Divider -->
     <div
       v-else-if="element.type === 'divider'"
-      class="canvas-element__divider"
+      class="canvas-element__content canvas-element__divider"
       :style="{
-        borderBottom: element.thickness + 'px solid ' + element.color
+        backgroundColor: element.color,
+        height: element.thickness + 'px'
       }"
     />
   </div>
@@ -104,39 +103,37 @@ function onClick(event: MouseEvent): void {
   position: absolute;
   cursor: move;
   user-select: none;
-  transition: box-shadow 0.1s ease;
 
   &--selected {
     outline: 2px solid $color-selected;
-    outline-offset: -1px;
-    box-shadow: 0 0 0 1px rgba($color-selected, 0.2);
+    outline-offset: 0px;
   }
 
   &:hover:not(&--selected) {
     outline: 1px dashed color.adjust($color-border, $lightness: 5%);
-    outline-offset: -1px;
+    outline-offset: 0px;
+  }
+
+  &__content {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
   }
 
   &__heading {
-    width: 100%;
-    height: 100%;
     font-weight: 700;
     overflow: hidden;
-    display: flex;
-    align-items: center;
+    display: block;
+    line-height: 1.2;
   }
 
   &__text {
-    width: 100%;
-    height: 100%;
     overflow: hidden;
-    display: flex;
-    align-items: flex-start;
+    display: block;
+    line-height: 1.4;
   }
 
   &__button {
-    width: 100%;
-    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -144,8 +141,7 @@ function onClick(event: MouseEvent): void {
   }
 
   &__image {
-    width: 100%;
-    height: 100%;
+    overflow: hidden;
   }
 
   &__img {
@@ -168,10 +164,9 @@ function onClick(event: MouseEvent): void {
   }
 
   &__divider {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
   }
 }
 </style>
