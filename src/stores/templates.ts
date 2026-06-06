@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { useEditorStore } from './'
 import { fetchTemplates, saveTemplate, deleteTemplate, generateId, downloadJson, validateTemplate } from '@/utils'
 import type { Template } from '@/types'
@@ -28,21 +28,18 @@ function saveToLocalStorage(data: Template[]): void {
 }
 
 export const useTemplatesStore = defineStore('templates', () => {
-  const templates = ref<Template[]>(loadFromLocalStorage())
+  const templates = ref<Template[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
-
-  // Sync to localStorage on every change
-  watch(templates, (value) => saveToLocalStorage(value), { deep: true })
 
   async function fetchAll(): Promise<void> {
     isLoading.value = true
     error.value = null
     try {
-      const remote = await fetchTemplates()
-      templates.value = remote
+      templates.value = await fetchTemplates()
     } catch {
-      // API unavailable — keep localStorage data, don't overwrite
+      // API unavailable — fall back to localStorage cache
+      templates.value = loadFromLocalStorage()
     } finally {
       isLoading.value = false
     }
@@ -65,9 +62,11 @@ export const useTemplatesStore = defineStore('templates', () => {
       const saved = await saveTemplate(template)
       templates.value.push(saved)
       return saved
-    } catch {
-      // API unavailable — save locally only
+    } catch (e) {
+      error.value = getErrorMessage(e)
+      // API unavailable — cache locally as fallback
       templates.value.push(template)
+      saveToLocalStorage(templates.value)
       return template
     }
   }
@@ -84,9 +83,11 @@ export const useTemplatesStore = defineStore('templates', () => {
       await deleteTemplate(id)
       templates.value = templates.value.filter((t) => t.id !== id)
       return true
-    } catch {
-      // API unavailable — remove locally only
+    } catch (e) {
+      error.value = getErrorMessage(e)
+      // API unavailable — remove from local cache
       templates.value = templates.value.filter((t) => t.id !== id)
+      saveToLocalStorage(templates.value)
       return true
     }
   }
