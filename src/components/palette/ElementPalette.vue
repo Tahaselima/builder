@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import PaletteItem from './PaletteItem.vue'
 import SaveDialog from './SaveDialog.vue'
+import NewDialog from './NewDialog.vue'
 import TemplateList from './TemplateList.vue'
 import { useEditorStore } from '@/stores/editor'
 import { useTemplatesStore } from '@/stores/templates'
@@ -12,8 +13,7 @@ const editor = useEditorStore()
 const templates = useTemplatesStore()
 
 const showSaveDialog = ref(false)
-const importInput = ref<HTMLInputElement | null>(null)
-const importError = ref<string | null>(null)
+const showNewDialog = ref(false)
 
 const elements: { type: ElementType; label: string; iconName: string }[] = [
   { type: 'heading', label: ELEMENT_TYPE_LABELS.heading, iconName: 'heading' },
@@ -23,33 +23,12 @@ const elements: { type: ElementType; label: string; iconName: string }[] = [
   { type: 'divider', label: ELEMENT_TYPE_LABELS.divider, iconName: 'divider' }
 ]
 
-function onNew(): void {
-  editor.clearCanvas()
-}
-
 async function onSave(name: string): Promise<void> {
   await templates.saveCurrentAsTemplate(name)
 }
 
 function onExport(): void {
   templates.exportCurrentAsJson()
-}
-
-async function onImport(): Promise<void> {
-  if (!importInput.value?.files?.length) return
-  const file = importInput.value.files[0]
-  if (!file.name.endsWith('.json')) {
-    importError.value = 'Please select a .json file'
-    return
-  }
-  const result = await templates.importFromJson(file)
-  if (result.success) {
-    importError.value = null
-  } else {
-    importError.value = result.error ?? 'Import failed'
-  }
-  // Reset input so the same file can be re-imported
-  if (importInput.value) importInput.value.value = ''
 }
 </script>
 
@@ -75,21 +54,17 @@ async function onImport(): Promise<void> {
     <div class="element-palette__section element-palette__actions">
       <h2 class="element-palette__heading">Actions</h2>
       <div class="element-palette__action-buttons">
-        <button class="action-btn action-btn--new" @click="onNew">+ New</button>
+        <button class="action-btn action-btn--new" @click="showNewDialog = true">+ New</button>
         <button class="action-btn action-btn--save" @click="showSaveDialog = true">Save</button>
         <button class="action-btn action-btn--export" @click="onExport">Export JSON</button>
-        <button class="action-btn action-btn--import" @click="importInput?.click()">Import JSON</button>
-        <p v-if="importError" class="element-palette__import-error">{{ importError }}</p>
-        <input
-          ref="importInput"
-          type="file"
-          accept=".json"
-          style="display: none"
-          @change="onImport"
-        />
       </div>
     </div>
   </aside>
+
+  <NewDialog
+    v-if="showNewDialog"
+    @close="showNewDialog = false"
+  />
 
   <SaveDialog
     v-if="showSaveDialog"
@@ -133,12 +108,6 @@ async function onImport(): Promise<void> {
 
   &__actions {
     margin-top: auto;
-  }
-
-  &__import-error {
-    font-size: 11px;
-    color: $color-danger;
-    margin-top: 4px;
   }
 }
 </style>
