@@ -83,24 +83,36 @@ export function useResize(elementId: () => string) {
     drag.detach()
   }
 
-  function onMouseDown(event: MouseEvent, corner: HandleCorner): void {
-    event.stopPropagation()
-    event.preventDefault()
-
+  function startResize(clientX: number, clientY: number, corner: HandleCorner): void {
     const id = elementId()
     const el = editor.getElementById(id)
     if (!el) return
 
     activeCorner.value = corner
-    startMouse.value = { x: event.clientX, y: event.clientY }
+    startMouse.value = { x: clientX, y: clientY }
     startSize.value = { ...el.size }
     startPosition.value = { ...el.position }
 
     drag.attach(onMouseMove, onMouseUp)
   }
 
+  function onMouseDown(event: MouseEvent, corner: HandleCorner): void {
+    event.stopPropagation()
+    event.preventDefault()
+    startResize(event.clientX, event.clientY, corner)
+  }
+
+  function onTouchStart(event: TouchEvent, corner: HandleCorner): void {
+    event.stopPropagation()
+    event.preventDefault()
+    const touch = event.touches[0]
+    if (!touch) return
+    startResize(touch.clientX, touch.clientY, corner)
+  }
+
   return {
     isResizing: drag.isActive,
-    onMouseDown
+    onMouseDown,
+    onTouchStart
   }
 }

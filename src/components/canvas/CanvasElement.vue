@@ -15,8 +15,8 @@ const isSelected = computed(() => editor.selectedElementId === props.element.id)
 const isEditing = ref(false)
 const editRef = ref<HTMLElement | null>(null)
 
-const { onMouseDown } = useDragMove(() => props.element.id)
-const { onMouseDown: onResizeStart } = useResize(() => props.element.id)
+const { onMouseDown, onTouchStart } = useDragMove(() => props.element.id)
+const { onMouseDown: onResizeStart, onTouchStart: onTouchResizeStart } = useResize(() => props.element.id)
 
 function isTextType(): boolean {
   return props.element.type === 'heading' || props.element.type === 'text'
@@ -73,6 +73,7 @@ function finishEditing(): void {
       zIndex: element.zIndex
     }"
     @mousedown="isEditing ? undefined : onMouseDown($event)"
+    @touchstart="isEditing ? undefined : onTouchStart($event)"
     @dblclick="onDoubleClick"
   >
     <!-- Heading / Text (inline-editable) -->
@@ -142,6 +143,7 @@ function finishEditing(): void {
           class="canvas-element__action-btn"
           title="Bring Forward"
           @mousedown.stop.prevent
+          @touchstart.stop.prevent
           @click.stop="editor.bringToFront(element.id)"
         >
           <BaseIcon name="layerUp" :size="11" />
@@ -150,6 +152,7 @@ function finishEditing(): void {
           class="canvas-element__action-btn"
           title="Send Backward"
           @mousedown.stop.prevent
+          @touchstart.stop.prevent
           @click.stop="editor.sendToBack(element.id)"
         >
           <BaseIcon name="layerDown" :size="11" />
@@ -158,15 +161,16 @@ function finishEditing(): void {
           class="canvas-element__action-btn canvas-element__action-btn--delete"
           title="Delete"
           @mousedown.stop.prevent
+          @touchstart.stop.prevent
           @click.stop="editor.removeElement(element.id)"
         >
           <BaseIcon name="trash" :size="11" />
         </button>
       </div>
-      <div class="resize-handle resize-handle--tl" @mousedown.stop.prevent="onResizeStart($event, 'tl')" />
-      <div class="resize-handle resize-handle--tr" @mousedown.stop.prevent="onResizeStart($event, 'tr')" />
-      <div class="resize-handle resize-handle--bl" @mousedown.stop.prevent="onResizeStart($event, 'bl')" />
-      <div class="resize-handle resize-handle--br" @mousedown.stop.prevent="onResizeStart($event, 'br')" />
+      <div class="resize-handle resize-handle--tl" @mousedown.stop.prevent="onResizeStart($event, 'tl')" @touchstart.stop.prevent="onTouchResizeStart($event, 'tl')" />
+      <div class="resize-handle resize-handle--tr" @mousedown.stop.prevent="onResizeStart($event, 'tr')" @touchstart.stop.prevent="onTouchResizeStart($event, 'tr')" />
+      <div class="resize-handle resize-handle--bl" @mousedown.stop.prevent="onResizeStart($event, 'bl')" @touchstart.stop.prevent="onTouchResizeStart($event, 'bl')" />
+      <div class="resize-handle resize-handle--br" @mousedown.stop.prevent="onResizeStart($event, 'br')" @touchstart.stop.prevent="onTouchResizeStart($event, 'br')" />
     </template>
   </div>
 </template>
