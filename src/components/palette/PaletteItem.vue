@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ElementType } from '@/types'
 import { BaseIcon } from '@/components'
+import { useEditorStore } from '@/stores'
 
 defineProps<{
   type: ElementType
@@ -8,10 +9,19 @@ defineProps<{
   iconName: string
 }>()
 
+const editor = useEditorStore()
+
 function onDragStart(event: DragEvent, type: ElementType): void {
   if (!event.dataTransfer) return
   event.dataTransfer.setData('application/element-type', type)
   event.dataTransfer.effectAllowed = 'copy'
+}
+
+function onClick(type: ElementType): void {
+  // On touch/mobile devices, tap to add directly to canvas center
+  if ('ontouchstart' in window) {
+    editor.addElement(type)
+  }
 }
 </script>
 
@@ -20,6 +30,7 @@ function onDragStart(event: DragEvent, type: ElementType): void {
     class="palette-item"
     draggable="true"
     @dragstart="onDragStart($event, type)"
+    @click="onClick(type)"
   >
     <span class="palette-item__icon">
       <BaseIcon :name="iconName" />
@@ -66,6 +77,12 @@ function onDragStart(event: DragEvent, type: ElementType): void {
     font-size: 13px;
     font-weight: 500;
     color: $color-text;
+  }
+}
+
+@media (max-width: $breakpoint-mobile) {
+  .palette-item {
+    cursor: pointer;
   }
 }
 </style>
