@@ -153,26 +153,27 @@ function closePanels(): void {
       background: $color-overlay;
     }
 
+    &__palette,
+    &__properties {
+      height: calc(100vh - #{$header-height});
+    }
+
     &__palette {
       position: fixed;
       top: $header-height;
       left: 0;
-      bottom: 0;
       z-index: 60;
       transform: translateX(-100%);
       transition: transform 0.25s ease;
-      overflow-y: auto;
     }
 
     &__properties {
       position: fixed;
       top: $header-height;
       right: 0;
-      bottom: 0;
       z-index: 60;
       transform: translateX(100%);
       transition: transform 0.25s ease;
-      overflow-y: auto;
     }
 
     &__panel--open {
