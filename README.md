@@ -72,7 +72,7 @@ App.vue
        ├─ AppHeader          → Undo/redo, grid, preview, settings, shortcuts
        ├─ ElementPalette     → Sürükle-bırak element listesi + kaydet/yükle
        ├─ CanvasArea         → Drop zone, element rendering
-       │    └─ CanvasElement → Drag, resize, inline-edit, z-index kontrolleri
+       │    └─ CanvasElement → Drag (mouse + touch long-press), resize, inline-edit, z-index kontrolleri
        │         └─ ElementRenderer → Paylaşımlı element render mantığı
        └─ PropertiesPanel   → Seçili elementin özellik düzenleyicisi
 ```
@@ -141,7 +141,7 @@ Kullanıcı → /api/templates
 3. **Veri saklama:** Local development'ta Express + file-based JSON. Netlify'da serverless function + in-memory storage, API çöküşünde localStorage fallback.
 4. **AI üretimi:** OpenAI API key localStorage'da saklanır. Tarayıcıdan doğrudan OpenAI API'ye istek atılır — production'da server-side proxy kullanılmalıdır.
 5. **Element sayısı:** Canvas üzerinde makul sayıda element (10-50) beklenir. Performans optimizasyonu (virtual scroll, lazy rendering) yapılmamıştır.
-6. **Tarayıcı desteği:** Modern evergreen tarayıcılar hedeflenmiştir (Chrome, Firefox, Safari, Edge).
+6. **Tarayıcı desteği:** Modern evergreen tarayıcılar hedeflenmiştir (Chrome, Firefox, Safari, Edge). Mobilde canvas elementleri long-press (uzun basış) ile sürüklenebilir, resize handle'lar doğrudan dokunmatik destekler.
 
 ---
 
