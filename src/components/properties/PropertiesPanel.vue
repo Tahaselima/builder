@@ -145,4 +145,10 @@ function onUpdate(payload: ElementUpdate): void {
     }
   }
 }
+
+@media (max-width: $breakpoint-mobile) {
+  .properties-panel {
+    width: 280px;
+  }
+}
 </style>

@@ -118,4 +118,10 @@ function onExport(): void {
     margin-top: auto;
   }
 }
+
+@media (max-width: $breakpoint-mobile) {
+  .element-palette {
+    width: 260px;
+  }
+}
 </style>
