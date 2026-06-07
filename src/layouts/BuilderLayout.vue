@@ -86,6 +86,13 @@ function closePanels(): void {
     position: relative;
   }
 
+  &__palette,
+  &__properties {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
   &__backdrop {
     display: none;
   }
@@ -138,6 +145,15 @@ function closePanels(): void {
       inset: 0;
       z-index: 50;
       background: $color-overlay;
+    }
+
+    &__palette,
+    &__properties {
+      height: 100%;
+
+      :deep(aside) {
+        height: 100%;
+      }
     }
 
     &__palette {
