@@ -26,24 +26,42 @@ function closePanels(): void {
 
 <template>
   <div class="builder-layout">
-    <AppHeader @toggle-left="toggleLeft" @toggle-right="toggleRight" />
+    <AppHeader />
+
+    <!-- Mobile panel handles -->
+    <div class="builder-layout__handles">
+      <button
+        class="builder-layout__handle builder-layout__handle--left"
+        :class="{ 'builder-layout__handle--active': showLeftPanel }"
+        @click="toggleLeft"
+      >
+        <span class="builder-layout__handle-icon">◂</span>
+      </button>
+      <button
+        class="builder-layout__handle builder-layout__handle--right"
+        :class="{ 'builder-layout__handle--active': showRightPanel }"
+        @click="toggleRight"
+      >
+        <span class="builder-layout__handle-icon">▸</span>
+      </button>
+    </div>
+
     <div class="builder-layout__body">
-      <!-- Backdrop for mobile -->
       <div
         v-if="showLeftPanel || showRightPanel"
         class="builder-layout__backdrop"
         @click="closePanels"
       />
 
-      <ElementPalette
-        class="builder-layout__palette"
-        :class="{ 'builder-layout__panel--open': showLeftPanel }"
-      />
+      <div class="builder-layout__palette" :class="{ 'builder-layout__panel--open': showLeftPanel }">
+        <ElementPalette />
+      </div>
+
       <CanvasArea @click="closePanels" />
-      <PropertiesPanel
-        class="builder-layout__properties"
-        :class="{ 'builder-layout__panel--open': showRightPanel }"
-      />
+
+      <div class="builder-layout__properties" :class="{ 'builder-layout__panel--open': showRightPanel }">
+        <PropertiesPanel />
+      </div>
     </div>
   </div>
 </template>
@@ -56,6 +74,10 @@ function closePanels(): void {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+
+  &__handles {
+    display: none;
+  }
 
   &__body {
     display: flex;
@@ -70,6 +92,46 @@ function closePanels(): void {
 
   // Mobile
   @media (max-width: $breakpoint-mobile) {
+    &__handles {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      z-index: 40;
+      height: 0;
+    }
+
+    &__handle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 0 0 8px 8px;
+      background: $color-surface;
+      border: 1px solid $color-border;
+      border-top: none;
+      color: $color-text-secondary;
+      cursor: pointer;
+      font-size: 12px;
+      transition: $transition-default;
+      box-shadow: 0 2px 6px $color-shadow;
+
+      &--active {
+        background: $color-primary;
+        color: $color-surface;
+      }
+
+      &:active {
+        transform: scale(0.92);
+      }
+
+      &-icon {
+        line-height: 1;
+        font-size: 14px;
+      }
+    }
+
     &__backdrop {
       display: block;
       position: fixed;
@@ -78,20 +140,26 @@ function closePanels(): void {
       background: $color-overlay;
     }
 
-    &__palette,
-    &__properties {
+    &__palette {
       position: fixed;
       top: $header-height;
+      left: 0;
       bottom: 0;
       z-index: 60;
       transform: translateX(-100%);
       transition: transform 0.25s ease;
+      overflow-y: auto;
     }
 
     &__properties {
+      position: fixed;
+      top: $header-height;
       right: 0;
-      left: auto;
+      bottom: 0;
+      z-index: 60;
       transform: translateX(100%);
+      transition: transform 0.25s ease;
+      overflow-y: auto;
     }
 
     &__panel--open {

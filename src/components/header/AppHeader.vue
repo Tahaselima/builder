@@ -8,19 +8,11 @@ const editor = useEditorStore()
 const showShortcuts = ref(false)
 const showSettings = ref(false)
 const showPreview = ref(false)
-
-defineEmits<{
-  toggleLeft: []
-  toggleRight: []
-}>()
 </script>
 
 <template>
   <header class="app-header">
     <div class="app-header__left">
-      <button class="app-header__toggle btn-icon btn-icon--lg" title="Elements" @click="$emit('toggleLeft')">
-        <BaseIcon name="menu" :size="18" />
-      </button>
       <h1 class="app-header__title">Template Builder</h1>
     </div>
 
@@ -75,10 +67,6 @@ defineEmits<{
         @click="showShortcuts = true"
       >
         <BaseIcon name="keyboard" />
-      </button>
-
-      <button class="app-header__toggle btn-icon btn-icon--lg" title="Properties" @click="$emit('toggleRight')">
-        <BaseIcon name="settings" :size="18" />
       </button>
     </div>
   </header>
@@ -135,11 +123,6 @@ defineEmits<{
     display: flex;
     gap: 4px;
   }
-
-  // Mobile toggle buttons — hidden on desktop
-  &__toggle {
-    display: none;
-  }
 }
 
 .btn-icon--active {
@@ -151,22 +134,12 @@ defineEmits<{
   .app-header {
     padding: 0 12px;
 
-    &__toggle {
-      display: inline-flex;
-    }
-
     &__title {
       font-size: 14px;
     }
 
     &__right {
       gap: 8px;
-    }
-
-    // Hide some header buttons on small screens
-    &__history .btn-icon {
-      width: 28px;
-      height: 28px;
     }
   }
 }
