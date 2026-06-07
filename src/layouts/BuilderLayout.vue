@@ -91,6 +91,12 @@ function closePanels(): void {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    height: 100%;
+    overflow-y: auto;
+
+    :deep(aside) {
+      height: 100%;
+    }
   }
 
   &__backdrop {
@@ -145,15 +151,6 @@ function closePanels(): void {
       inset: 0;
       z-index: 50;
       background: $color-overlay;
-    }
-
-    &__palette,
-    &__properties {
-      height: 100%;
-
-      :deep(aside) {
-        height: 100%;
-      }
     }
 
     &__palette {
